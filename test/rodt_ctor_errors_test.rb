@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class RodtTest < Minitest::Test
+class RodtCtorErrorsTest < Minitest::Test
   def test_invalid_template_non_existing_file
     rescued = false
     begin

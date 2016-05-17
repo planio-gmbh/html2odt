@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class RodtTest < Minitest::Test
+class RodtOdtFileTest < Minitest::Test
   def test_odt_file_creation
     target = File.join(Dir.tmpdir, "test.odt")
 
