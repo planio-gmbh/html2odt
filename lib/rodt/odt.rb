@@ -37,6 +37,28 @@ class Rodt::Odt
     @styles_xml ||= xslt_tranform(@tpl_styles_xml, Rodt::XHTML2ODT_STYLES_XSL)
   end
 
+  def manifest_xml
+    @manifest_xml ||= begin
+      content_xml # trigger HTML parsing
+
+      if @images.nil? or @images.empty?
+        @tpl_manifest_xml
+      else
+        doc = Nokogiri::XML(@tpl_manifest_xml)
+
+        @images.each do |image|
+          entry = Nokogiri::XML::Node.new "manifest:file-entry", doc
+          entry["manifest:full-path"]  = image[:target]
+          entry["manifest:media-type"] = image[:type]
+
+          doc.root.add_child entry
+        end
+
+        doc.to_xml
+      end
+    end
+  end
+
   def data
     @data ||= begin
       buffer = Zip::OutputStream.write_buffer do |output_stream|
@@ -52,6 +74,8 @@ class Rodt::Odt
                 content_xml
               when "styles.xml"
                 styles_xml
+              when "META-INF/manifest.xml"
+                manifest_xml
               else
                 input_stream.sysread
               end
@@ -63,9 +87,9 @@ class Rodt::Odt
         end
 
         # Adding images found in the HTML sources
-        (@images || {}).each do |target, source|
-          output_stream.put_next_entry(target)
-          output_stream.write File.read(source)
+        (@images || []).each do |image|
+          output_stream.put_next_entry(image[:target])
+          output_stream.write File.read(image[:source])
         end
       end
 
@@ -86,8 +110,9 @@ class Rodt::Odt
     end
 
     Zip::File.open(@template) do |zip_file|
-      @tpl_content_xml = zip_file.read("content.xml")
-      @tpl_styles_xml  = zip_file.read("styles.xml")
+      @tpl_content_xml  = zip_file.read("content.xml")
+      @tpl_manifest_xml = zip_file.read("META-INF/manifest.xml")
+      @tpl_styles_xml   = zip_file.read("styles.xml")
     end
 
     unless @tpl_content_xml =~ CONTENT_REGEX
@@ -116,7 +141,7 @@ class Rodt::Odt
   def fix_images_in_html(html)
     doc = Nokogiri::HTML::DocumentFragment.parse(html)
 
-    @images = {}
+    @images = []
     doc.css("img").each_with_index do |img, index|
       src = img['src']
 
@@ -125,12 +150,17 @@ class Rodt::Odt
         source = src[7..-1]
         next unless File.readable? source
 
-        file_ending = verify_file_type(source)
-        next unless file_ending
+        type = verify_file_type(source)
+        next unless type
 
-        target = "Pictures/#{index}.#{file_ending}"
+        target = "Pictures/#{index}.#{type.extensions.first}"
 
-        @images[target] = source
+        @images << {
+          target: target,
+          source: source,
+          type:   type.type
+        }
+
         img['src'] = target
       else
         # cannot handle image properly, leaving as is
@@ -153,15 +183,13 @@ class Rodt::Odt
   end
 
   def verify_file_type(file)
-    magic = MimeMagic.by_magic(File.open(file))
-    return unless magic
-
-    magic.extensions.first
+    MimeMagic.by_magic(File.open(file))
   end
 
   def reset
-    @content_xml = nil
-    @data        = nil
-    @images      = nil
+    @content_xml  = nil
+    @manifest_xml = nil
+    @data         = nil
+    @images       = nil
   end
 end

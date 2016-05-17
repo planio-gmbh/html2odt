@@ -55,6 +55,10 @@ class RodtCtorErrorsTest < Minitest::Test
       zipfile.get_output_stream("styles.xml") do |f|
         f.puts "blub"
       end
+
+      zipfile.get_output_stream("META-INF/manifest.xml") do |f|
+        f.puts "blub"
+      end
     end
 
     rescued = false

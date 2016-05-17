@@ -51,8 +51,11 @@ class RodtImageHandlingTest < Minitest::Test
     Zip::File.open(target) do |zipfile|
       assert zipfile.find_entry("content.xml")
       assert zipfile.find_entry("styles.xml")
+
+      # zip contains image file
       assert zipfile.find_entry("Pictures/0.png"), "Image not in zip"
 
+      # content xml contains ref to image
       content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
       images = content_xml.xpath("//draw:image")
       assert_equal 1, images.size
@@ -60,6 +63,15 @@ class RodtImageHandlingTest < Minitest::Test
       image = images.first
 
       assert_equal "Pictures/0.png", image["xlink:href"]
+
+      # manifest contains ref to image
+      manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))
+
+      # <manifest:file-entry manifest:full-path="Thumbnails/thumbnail.png"
+      #                      manifest:media-type="image/png"/>
+      thumbnail = manifest_xml.at_xpath("//manifest:file-entry[@manifest:full-path='Pictures/0.png']")
+      assert thumbnail
+      assert_equal "image/png", thumbnail["manifest:media-type"]
     end
   end
 end
