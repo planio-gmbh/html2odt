@@ -7,7 +7,7 @@ class RodtCtorErrorsTest < Minitest::Test
       Rodt::Odt.new(template: "/invalid/file")
     rescue ArgumentError
       rescued = true
-      assert $!.message =~ /cannot read template/i
+      assert_match(/cannot read template/i, $!.message)
     end
     assert rescued, "Expected ArgumentError"
   end
@@ -18,7 +18,7 @@ class RodtCtorErrorsTest < Minitest::Test
       Rodt::Odt.new(template: __FILE__)
     rescue ArgumentError
       rescued = true
-      assert $!.message =~ /does not look like a ODT file/i
+      assert_match(/does not look like a ODT file/i, $!.message)
     end
     assert rescued, "Expected ArgumentError"
   end
@@ -37,7 +37,7 @@ class RodtCtorErrorsTest < Minitest::Test
       Rodt::Odt.new(template: template)
     rescue ArgumentError
       rescued = true
-      assert $!.message =~ /does not contain expected file/i
+      assert_match(/does not contain expected file/i, $!.message)
     end
     assert rescued, "Expected ArgumentError"
   ensure
