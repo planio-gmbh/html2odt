@@ -1,6 +1,7 @@
 require "xml/xslt"
 require "zip"
 
+require "rodt/odt"
 require "rodt/version"
 
 module Rodt
