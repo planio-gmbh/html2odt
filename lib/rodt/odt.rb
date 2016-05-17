@@ -18,11 +18,9 @@ class Rodt::Odt
   def content_xml
     @content_xml ||= begin
 
-      xml = xslt_tranform(<<-XML, Rodt::XHTML2ODT_XSL)
-        <html xmlns="http://www.w3.org/1999/xhtml">
-          #{html}
-        </html>
-      XML
+      html = prepare_html
+
+      xml = xslt_tranform(html, Rodt::XHTML2ODT_XSL)
 
       xml = xml.sub('<?xml version="1.0" encoding="utf-8"?>', '')
       xml = @tpl_content_xml.sub(/<text:p[^>]*>{{content}}<\/text:p>/, xml)
@@ -40,6 +38,8 @@ class Rodt::Odt
   def data
     @data ||= begin
       buffer = Zip::OutputStream.write_buffer do |output_stream|
+        # Copy contents from template, while replacing content.xml and
+        # styles.xml
         Zip::File.open(@template) do |file|
           file.each do |entry|
             next if entry.directory?
@@ -58,6 +58,12 @@ class Rodt::Odt
               output_stream.write data
             end
           end
+        end
+
+        # Adding images found in the HTML sources
+        (@images || {}).each do |target, source|
+          output_stream.put_next_entry(target)
+          output_stream.write File.read(source)
         end
       end
 
@@ -88,6 +94,47 @@ class Rodt::Odt
     raise ArgumentError, "Template file does not contain expected file - #{$!.message}"
   end
 
+
+  def prepare_html
+    html = self.html
+    html = fix_images_in_html(html)
+    html = create_document(html)
+    html
+  end
+
+
+  def create_document(html)
+    %Q{<html xmlns="http://www.w3.org/1999/xhtml">#{html}</html>}
+  end
+
+  def fix_images_in_html(html)
+    doc = Nokogiri::HTML::DocumentFragment.parse(html)
+
+    @images = {}
+    doc.css("img").each_with_index do |img, index|
+      src = img['src']
+
+      case src
+      when /\Afile:\/\//
+        source = src[7..-1]
+        next unless File.readable? source
+
+        file_ending = verify_file_type(source)
+        next unless file_ending
+
+        target = "Pictures/#{index}.#{file_ending}"
+
+        @images[target] = source
+        img['src'] = target
+      else
+        # cannot handle image properly, leaving as is
+      end
+    end
+
+    doc.to_xml
+  end
+
+
   def xslt_tranform(xml, xsl)
     xslt = XML::XSLT.new
 
@@ -95,10 +142,20 @@ class Rodt::Odt
     xslt.xsl = xsl
 
     xslt.serve
+  rescue XML::XSLT::ParsingError
+    debugger
+  end
+
+  def verify_file_type(file)
+    magic = MimeMagic.by_magic(File.open(file))
+    return unless magic
+
+    magic.extensions.first
   end
 
   def reset
     @content_xml = nil
     @data        = nil
+    @images      = nil
   end
 end

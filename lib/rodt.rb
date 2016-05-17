@@ -1,3 +1,5 @@
+require "mimemagic"
+require "nokogiri"
 require "xml/xslt"
 require "zip"
 
