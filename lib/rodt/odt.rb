@@ -1,5 +1,13 @@
 class Rodt::Odt
   CONTENT_REGEX = /<text:p[^>]*>{{content}}<\/text:p>/
+  INCH_TO_CM = 2.54
+
+  # The following value was determined by comparing the generated result with
+  # an image dropped into LibreOffice interactively. Though this might be
+  # related to the fact, that my screen has a native resolution of 114 dpi.
+  #
+  # xhtml2odt uses 96 by default.
+  DPI = 114.0
 
   def initialize(template: Rodt::ODT_TEMPLATE, html: nil)
     @html     = html
@@ -48,8 +56,8 @@ class Rodt::Odt
 
         @images.each do |image|
           entry = Nokogiri::XML::Node.new "manifest:file-entry", doc
-          entry["manifest:full-path"]  = image[:target]
-          entry["manifest:media-type"] = image[:type]
+          entry["manifest:full-path"]  = image.target
+          entry["manifest:media-type"] = image.mime_type
 
           doc.root.add_child entry
         end
@@ -88,8 +96,8 @@ class Rodt::Odt
 
         # Adding images found in the HTML sources
         (@images || []).each do |image|
-          output_stream.put_next_entry(image[:target])
-          output_stream.write File.read(image[:source])
+          output_stream.put_next_entry(image.target)
+          output_stream.write File.read(image.source)
         end
       end
 
@@ -150,18 +158,33 @@ class Rodt::Odt
         source = src[7..-1]
         next unless File.readable? source
 
-        type = verify_file_type(source)
-        next unless type
+        image = Rodt::Image.new(source, index)
+        next unless image.valid?
 
-        target = "Pictures/#{index}.#{type.extensions.first}"
+        @images << image
 
-        @images << {
-          target: target,
-          source: source,
-          type:   type.type
-        }
+        img['src'] = image.target
 
-        img['src'] = target
+        if img["width"] and img["height"]
+          width  = img["width"].to_i
+          height = img["height"].to_i
+
+          img.remove_attr("width")
+          img.remove_attr("height")
+        elsif img["width"]
+          # compute height based on width keeping aspect ratio
+          raise NotImplementedError, "Waiting for this to happen"
+        elsif img["height"]
+          # compute width based on height keeping aspect ratio
+          raise NotImplementedError, "Waiting for this to happen"
+        else
+          width  = image.width
+          height = image.height
+        end
+
+        img["width"]  = "#{(width  / DPI * INCH_TO_CM).round(2)}cm" if width
+        img["height"] = "#{(height / DPI * INCH_TO_CM).round(2)}cm" if height
+
       else
         # cannot handle image properly, leaving as is
       end
@@ -180,10 +203,6 @@ class Rodt::Odt
     xslt.serve
   rescue XML::XSLT::ParsingError
     debugger
-  end
-
-  def verify_file_type(file)
-    MimeMagic.by_magic(File.open(file))
   end
 
   def reset

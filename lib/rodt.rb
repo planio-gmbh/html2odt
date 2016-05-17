@@ -1,8 +1,9 @@
-require "mimemagic"
+require "dimensions"
 require "nokogiri"
 require "xml/xslt"
 require "zip"
 
+require "rodt/image"
 require "rodt/odt"
 require "rodt/version"
 

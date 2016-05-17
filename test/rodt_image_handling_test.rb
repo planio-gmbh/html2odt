@@ -61,8 +61,12 @@ class RodtImageHandlingTest < Minitest::Test
       assert_equal 1, images.size
 
       image = images.first
-
       assert_equal "Pictures/0.png", image["xlink:href"]
+      frame = image.parent
+
+      # 300 px / 114 dpi = 2.632 inch; 2.632 inch * 2.54 cm/inch = 6.684
+      assert_equal "6.68cm", frame["svg:width"]
+      assert_equal "6.68cm", frame["svg:height"]
 
       # manifest contains ref to image
       manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))

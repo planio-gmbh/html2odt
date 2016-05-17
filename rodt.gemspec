@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "mimemagic", "~> 0.3.1"
+  spec.add_dependency "dimensions", "~> 1.3.0"
   spec.add_dependency "nokogiri", "~> 1.6.7.2"
   spec.add_dependency "ruby-xslt", "~> 0.9.9"
   spec.add_dependency "rubyzip", "~> 1.2.0"
