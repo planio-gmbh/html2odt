@@ -51,6 +51,9 @@ in the `Rodt::Odt` constructor.
 *Please note:* If the template file cannot be read or if it does not appear to
 be a valid ODT file, an `ArgumentError` will be raised.
 
+The template needs to contain an otherwise empty paragraph containing the string
+`{{content}}`.
+
 ```ruby
 # Provide optional template file
 odt = Rodt::Odt.new(template: "template.odt")

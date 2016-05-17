@@ -43,4 +43,29 @@ class RodtCtorErrorsTest < Minitest::Test
   ensure
     File.unlink template if File.exist? template
   end
+
+  def test_invalid_template_no_content_paragraph
+    template = File.join(Dir.tmpdir, "template.odt")
+
+    Zip::File.open(template, Zip::File::CREATE) do |zipfile|
+      zipfile.get_output_stream("content.xml") do |f|
+        f.puts "bla"
+      end
+
+      zipfile.get_output_stream("styles.xml") do |f|
+        f.puts "blub"
+      end
+    end
+
+    rescued = false
+    begin
+      Rodt::Odt.new(template: template)
+    rescue ArgumentError
+      rescued = true
+      assert_match(/does not contain.*{{content}}/i, $!.message)
+    end
+    assert rescued, "Expected ArgumentError"
+  ensure
+    File.unlink template if File.exist? template
+  end
 end

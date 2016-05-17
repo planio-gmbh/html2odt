@@ -1,4 +1,6 @@
 class Rodt::Odt
+  CONTENT_REGEX = /<text:p[^>]*>{{content}}<\/text:p>/
+
   def initialize(template: Rodt::ODT_TEMPLATE, html: nil)
     @html     = html
     @template = template
@@ -23,7 +25,7 @@ class Rodt::Odt
       xml = xslt_tranform(html, Rodt::XHTML2ODT_XSL)
 
       xml = xml.sub('<?xml version="1.0" encoding="utf-8"?>', '')
-      xml = @tpl_content_xml.sub(/<text:p[^>]*>{{content}}<\/text:p>/, xml)
+      xml = @tpl_content_xml.sub(CONTENT_REGEX, xml)
 
       xml = xslt_tranform(xml, Rodt::XHTML2ODT_STYLES_XSL)
 
@@ -86,6 +88,10 @@ class Rodt::Odt
     Zip::File.open(@template) do |zip_file|
       @tpl_content_xml = zip_file.read("content.xml")
       @tpl_styles_xml  = zip_file.read("styles.xml")
+    end
+
+    unless @tpl_content_xml =~ CONTENT_REGEX
+      raise ArgumentError, "Template file does not contain `{{content}}` paragraph"
     end
 
   rescue Zip::Error
