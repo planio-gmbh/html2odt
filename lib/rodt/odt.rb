@@ -166,24 +166,24 @@ class Rodt::Odt
         img['src'] = image.target
 
         if img["width"] and img["height"]
+          # use values supplied in HTML
           width  = img["width"].to_i
           height = img["height"].to_i
-
-          img.remove_attr("width")
-          img.remove_attr("height")
         elsif img["width"]
           # compute height based on width keeping aspect ratio
-          raise NotImplementedError, "Waiting for this to happen"
+          width = img["width"].to_i
+          height = width * image.width / image.height
         elsif img["height"]
           # compute width based on height keeping aspect ratio
-          raise NotImplementedError, "Waiting for this to happen"
+          height = img["height"].to_i
+          width = height * image.height / image.width
         else
           width  = image.width
           height = image.height
         end
 
-        img["width"]  = "#{(width  / DPI * INCH_TO_CM).round(2)}cm" if width
-        img["height"] = "#{(height / DPI * INCH_TO_CM).round(2)}cm" if height
+        img["width"]  = "#{(width  / DPI * INCH_TO_CM).round(2)}cm"
+        img["height"] = "#{(height / DPI * INCH_TO_CM).round(2)}cm"
 
       else
         # cannot handle image properly, leaving as is

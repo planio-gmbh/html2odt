@@ -62,11 +62,6 @@ class RodtImageHandlingTest < Minitest::Test
 
       image = images.first
       assert_equal "Pictures/0.png", image["xlink:href"]
-      frame = image.parent
-
-      # 300 px / 114 dpi = 2.632 inch; 2.632 inch * 2.54 cm/inch = 6.684
-      assert_equal "6.68cm", frame["svg:width"]
-      assert_equal "6.68cm", frame["svg:height"]
 
       # manifest contains ref to image
       manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))
@@ -76,6 +71,116 @@ class RodtImageHandlingTest < Minitest::Test
       thumbnail = manifest_xml.at_xpath("//manifest:file-entry[@manifest:full-path='Pictures/0.png']")
       assert thumbnail
       assert_equal "image/png", thumbnail["manifest:media-type"]
+    end
+  end
+
+  def test_image_automatic_size
+    odt = Rodt::Odt.new
+
+    odt.html = <<-HTML
+      <img src="file://#{Dir.pwd}/test/fixtures/nina.png" />
+    HTML
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+
+      frames = content_xml.xpath("//draw:frame")
+      assert_equal 1, frames.size
+
+      frame = frames.first
+
+      # 300 px / 114 dpi = 2.632 inch; 2.632 inch * 2.54 cm/inch = 6.684
+      assert_equal "6.68cm", frame["svg:width"]
+      assert_equal "6.68cm", frame["svg:height"]
+    end
+  end
+
+  def test_image_explicit_width
+    odt = Rodt::Odt.new
+
+    odt.html = <<-HTML
+      <img src="file://#{Dir.pwd}/test/fixtures/nina.png" width=100 />
+    HTML
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+
+      frames = content_xml.xpath("//draw:frame")
+      assert_equal 1, frames.size
+
+      frame = frames.first
+
+      # 100 px / 114 dpi = 0.877 inch; 0.877 inch * 2.54 cm/inch = 2.228
+      assert_equal "2.23cm", frame["svg:width"]
+
+      # same as width, since aspect is 1:1
+      assert_equal "2.23cm", frame["svg:height"]
+    end
+  end
+
+  def test_image_explicit_height
+    odt = Rodt::Odt.new
+
+    odt.html = <<-HTML
+      <img src="file://#{Dir.pwd}/test/fixtures/nina.png" height=200 />
+    HTML
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+
+      frames = content_xml.xpath("//draw:frame")
+      assert_equal 1, frames.size
+
+      frame = frames.first
+
+      # 200 px / 114 dpi = 1.754 inch; 1.754 inch * 2.54 cm/inch = 4.456
+      assert_equal "4.46cm", frame["svg:height"]
+
+      # same as height, since aspect is 1:1
+      assert_equal "4.46cm", frame["svg:width"]
+    end
+  end
+
+  def test_image_explicit_size
+    odt = Rodt::Odt.new
+
+    odt.html = <<-HTML
+      <img src="file://#{Dir.pwd}/test/fixtures/nina.png" width=100 height=200 />
+    HTML
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+
+      frames = content_xml.xpath("//draw:frame")
+      assert_equal 1, frames.size
+
+      frame = frames.first
+
+      # 100 px / 114 dpi = 0.877 inch; 0.877 inch * 2.54 cm/inch = 2.228
+      assert_equal "2.23cm", frame["svg:width"]
+
+      # 200 px / 114 dpi = 1.754 inch; 1.754 inch * 2.54 cm/inch = 4.456
+      assert_equal "4.46cm", frame["svg:height"]
     end
   end
 end
