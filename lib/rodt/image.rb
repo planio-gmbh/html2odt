@@ -9,11 +9,15 @@ class Rodt::Image
   def valid?
     if @valid.nil?
       File.open(source, "rb") do |io|
-        dim = Dimensions(io)
+        Dimensions(io)
 
-        dim.send :peek
+        # Interacting with Dimensions::Reader directly to
+        #
+        #   a) avoid reading the file multiple times
+        #   b) get type info
 
-        reader = dim.instance_variable_get :@reader
+        io.send :peek
+        reader = io.instance_variable_get :@reader
 
         if reader.type
           @type = reader.type
