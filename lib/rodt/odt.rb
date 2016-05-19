@@ -238,9 +238,8 @@ class Rodt::Odt
     xslt.xml = xml
     xslt.xsl = xsl
 
+    # raises XML::XSLT::ParsingError if XML or XSL are invalid
     xslt.serve
-  rescue XML::XSLT::ParsingError
-    debugger
   end
 
   def reset
