@@ -144,6 +144,46 @@ class RodtImageHandlingTest < Minitest::Test
     end
   end
 
+  def test_html_with_unhandled_image_and_alt_text
+    # relative image paths cannot be handled, since we have no URL base this
+    # relates to.
+    #
+    # If there's a alt text though, we can use that instead.
+    #
+    odt = Rodt::Odt.new
+
+    odt.html = <<-HTML
+      <img src="http://example.com/test.png" alt="Yellow Robot" />
+    HTML
+
+    odt.image_handler = lambda do |src|
+      nil
+    end
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      assert zipfile.find_entry("content.xml")
+      assert zipfile.find_entry("styles.xml")
+
+      # zip contains image file
+      assert_nil zipfile.find_entry("Pictures/0.png"), "Image in zip, but not expected"
+
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+      images = content_xml.xpath("//draw:image")
+      assert_equal 0, images.size
+
+      links = content_xml.xpath("//text:a[text()=\"Yellow Robot\"]")
+      assert_equal 1, links.size
+
+      link = links.first
+      assert_equal "http://example.com/test.png", link["xlink:href"]
+    end
+  end
+
   def test_html_with_image_handler
     # relative image paths cannot be handled, since we have no URL base this
     # relates to, the image tag should be removed.

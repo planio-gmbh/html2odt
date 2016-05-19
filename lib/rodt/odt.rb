@@ -161,7 +161,18 @@ class Rodt::Odt
         update_img_tag(img, image)
         @images << image
       else
-        img.remove
+        # Replace img with link if alt tag is present
+        alt = img["alt"]
+
+        if alt.nil? || alt.empty?
+          img.remove
+        else
+          a = Nokogiri::XML::Node.new("a", doc)
+          a["href"] = img["src"]
+          a.content = alt
+
+          img.replace(a)
+        end
       end
     end
 
