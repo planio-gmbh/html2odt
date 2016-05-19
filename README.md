@@ -107,6 +107,19 @@ Registering an `image_location_mapping` callback will deactivate the default
 behaviour of including images with `file` and `http` URLs automatically.
 
 
+## License
+
+Files within the `xsl` directory belong to the [xhtml2odt
+project](https://gitlab.com/abompard/xhtml2odt) published by Aurelien Bompard
+(2009-2010) under the terms of the GNU LGP v2.1 or later:
+http://www.gnu.org/licenses/lgpl-2.1.html
+
+The remaining files are licensed under the terms of the MIT license.
+
+Copyright (c) 2016 Gregor Schmidt - Planio GmbH, Berlin, Germany
+
+
+
 ## Development
 
 After checking out the repo, run `bundle install` to install dependencies. Then,
