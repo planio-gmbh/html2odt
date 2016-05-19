@@ -1,7 +1,7 @@
 # html2odt
 
 This gem provides a Ruby wrapper around the set of XLST stylesheets published as
-[xhtml2odt](https://gitlab.com/abompard/xhtml2odt).
+[xhtml2odt](https://github.com/abompard/xhtml2odt).
 
 ## Installation
 
@@ -110,7 +110,7 @@ behaviour of including images with `file` and `http` URLs automatically.
 ## License
 
 Files within the `xsl` directory belong to the [xhtml2odt
-project](https://gitlab.com/abompard/xhtml2odt) published by Aurelien Bompard
+project](https://github.com/abompard/xhtml2odt) published by Aurelien Bompard
 (2009-2010) under the terms of the GNU LGP v2.1 or later:
 http://www.gnu.org/licenses/lgpl-2.1.html
 
