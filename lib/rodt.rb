@@ -1,3 +1,7 @@
+require "net/http"
+require "tempfile"
+require "uri"
+
 require "dimensions"
 require "nokogiri"
 require "xml/xslt"

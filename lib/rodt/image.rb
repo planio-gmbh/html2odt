@@ -1,12 +1,13 @@
 class Rodt::Image
-  attr_reader :source
+  attr_accessor :source
 
-  def initialize(source, target_base)
-    @source = source
+  def initialize(target_base)
     @target_base = target_base
   end
 
   def valid?
+    return false if source.nil? or !File.readable?(source)
+
     if @valid.nil?
       File.open(source, "rb") do |io|
         Dimensions(io)

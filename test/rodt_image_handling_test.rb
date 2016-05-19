@@ -37,7 +37,7 @@ class RodtImageHandlingTest < Minitest::Test
     end
   end
 
-  def test_html_with_image
+  def test_html_with_local_image
     odt = Rodt::Odt.new
 
     odt.html = <<-HTML
@@ -66,11 +66,81 @@ class RodtImageHandlingTest < Minitest::Test
       # manifest contains ref to image
       manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))
 
-      # <manifest:file-entry manifest:full-path="Thumbnails/thumbnail.png"
+      # <manifest:file-entry manifest:full-path="Pictures/0.png"
       #                      manifest:media-type="image/png"/>
-      thumbnail = manifest_xml.at_xpath("//manifest:file-entry[@manifest:full-path='Pictures/0.png']")
-      assert thumbnail
-      assert_equal "image/png", thumbnail["manifest:media-type"]
+      entry = manifest_xml.at_xpath("//manifest:file-entry[@manifest:full-path='Pictures/0.png']")
+      assert entry
+      assert_equal "image/png", entry["manifest:media-type"]
+    end
+  end
+
+  def test_html_with_remote_image
+    odt = Rodt::Odt.new
+
+    odt.html = <<-HTML
+      <img src="https://robohash.org/rodt.png" />
+    HTML
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      assert zipfile.find_entry("content.xml")
+      assert zipfile.find_entry("styles.xml")
+
+      # zip contains image file
+      assert zipfile.find_entry("Pictures/0.png"), "Image not in zip"
+
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+      images = content_xml.xpath("//draw:image")
+      assert_equal 1, images.size
+
+      image = images.first
+      assert_equal "Pictures/0.png", image["xlink:href"]
+
+      # manifest contains ref to image
+      manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))
+
+      # <manifest:file-entry manifest:full-path="Pictures/0.png"
+      #                      manifest:media-type="image/png"/>
+      entry = manifest_xml.at_xpath("//manifest:file-entry[@manifest:full-path='Pictures/0.png']")
+      assert entry
+      assert_equal "image/png", entry["manifest:media-type"]
+    end
+  end
+
+  def test_html_with_relative_image_path
+    # relative image paths cannot be handled, since we have no URL base this
+    # relates to, the image tag should be removed.
+
+    odt = Rodt::Odt.new
+
+    odt.html = <<-HTML
+      <img src="rodt.png" />
+    HTML
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      assert zipfile.find_entry("content.xml")
+      assert zipfile.find_entry("styles.xml")
+
+      # zip contains image file
+      assert_nil zipfile.find_entry("Pictures/0.png"), "Image in zip, but should not"
+
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+      images = content_xml.xpath("//draw:image")
+      assert_equal 0, images.size
+
+      # manifest contains no ref to image
+      manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))
+
+      assert_equal 0, manifest_xml.xpath("//manifest:file-entry[@manifest:full-path='Pictures/0.png']").size
     end
   end
 

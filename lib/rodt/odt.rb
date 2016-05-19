@@ -151,46 +151,79 @@ class Rodt::Odt
 
     @images = []
     doc.css("img").each_with_index do |img, index|
-      src = img['src']
+      image = Rodt::Image.new(index)
 
-      case src
-      when /\Afile:\/\//
-        source = src[7..-1]
-        next unless File.readable? source
+      image.source = file_path_for(img["src"])
 
-        image = Rodt::Image.new(source, index)
-        next unless image.valid?
-
+      if image.valid?
+        update_img_tag(img, image)
         @images << image
-
-        img['src'] = image.target
-
-        if img["width"] and img["height"]
-          # use values supplied in HTML
-          width  = img["width"].to_i
-          height = img["height"].to_i
-        elsif img["width"]
-          # compute height based on width keeping aspect ratio
-          width = img["width"].to_i
-          height = width * image.width / image.height
-        elsif img["height"]
-          # compute width based on height keeping aspect ratio
-          height = img["height"].to_i
-          width = height * image.height / image.width
-        else
-          width  = image.width
-          height = image.height
-        end
-
-        img["width"]  = "#{(width  / DPI * INCH_TO_CM).round(2)}cm"
-        img["height"] = "#{(height / DPI * INCH_TO_CM).round(2)}cm"
-
       else
-        # cannot handle image properly, leaving as is
+        img.remove
       end
     end
 
     doc.to_xml
+  end
+
+  def file_path_for(src)
+
+    case src
+    when /\Afile:\/\//
+      # local file URL
+      #
+      # TODO: Verify, that this does not pose a security threat, maybe make
+      # this optional. In any case, it's useful for testing.
+
+      src[7..-1]
+
+    when /\Ahttps?:\/\//
+      # remote image URL
+      #
+      # TODO: Verify, that this does not pose a security threat, maybe make
+      # this optional.
+
+      uri = URI.parse(src)
+      file = Tempfile.new("rodt")
+      file.binmode
+
+      Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |http|
+        resp = http.get(uri.path)
+
+        file.write(resp.body)
+        file.flush
+        file
+      end
+
+      file.path
+    else
+      # cannot handle image properly, return nil
+      nil
+    end
+  end
+
+  def update_img_tag(img, image)
+    img["src"] = image.target
+
+    if img["width"] and img["height"]
+      # use values supplied in HTML
+      width  = img["width"].to_i
+      height = img["height"].to_i
+    elsif img["width"]
+      # compute height based on width keeping aspect ratio
+      width = img["width"].to_i
+      height = width * image.width / image.height
+    elsif img["height"]
+      # compute width based on height keeping aspect ratio
+      height = img["height"].to_i
+      width = height * image.height / image.width
+    else
+      width  = image.width
+      height = image.height
+    end
+
+    img["width"]  = "#{(width  / DPI * INCH_TO_CM).round(2)}cm"
+    img["height"] = "#{(height / DPI * INCH_TO_CM).round(2)}cm"
   end
 
 
