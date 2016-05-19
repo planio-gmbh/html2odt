@@ -144,6 +144,58 @@ class RodtImageHandlingTest < Minitest::Test
     end
   end
 
+  def test_html_with_image_handler
+    # relative image paths cannot be handled, since we have no URL base this
+    # relates to, the image tag should be removed.
+
+    odt = Rodt::Odt.new
+
+    odt.html = <<-HTML
+      <img src="rodt.png" />
+      <img src="nina.png" />
+    HTML
+
+    # First image (0.png) will be ignored.
+    # Second one (1.png) will be added to ODT.
+
+    odt.image_handler = lambda do |src|
+      if src == "nina.png"
+        "#{Dir.pwd}/test/fixtures/nina.png"
+      else
+        nil
+      end
+    end
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      assert zipfile.find_entry("content.xml")
+      assert zipfile.find_entry("styles.xml")
+
+      # zip contains image file
+      assert zipfile.find_entry("Pictures/1.png"), "Image not in zip"
+
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+      images = content_xml.xpath("//draw:image")
+      assert_equal 1, images.size
+
+      image = images.first
+      assert_equal "Pictures/1.png", image["xlink:href"]
+
+      # manifest contains ref to image
+      manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))
+
+      # <manifest:file-entry manifest:full-path="Pictures/1.png"
+      #                      manifest:media-type="image/png"/>
+      entry = manifest_xml.at_xpath("//manifest:file-entry[@manifest:full-path='Pictures/1.png']")
+      assert entry
+      assert_equal "image/png", entry["manifest:media-type"]
+    end
+  end
+
   def test_image_automatic_size
     odt = Rodt::Odt.new
 

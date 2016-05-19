@@ -9,6 +9,8 @@ class Rodt::Odt
   # xhtml2odt uses 96 by default.
   DPI = 114.0
 
+  attr_accessor :image_handler
+
   def initialize(template: Rodt::ODT_TEMPLATE, html: nil)
     @html     = html
     @template = template
@@ -167,6 +169,9 @@ class Rodt::Odt
   end
 
   def file_path_for(src)
+    if image_handler
+      return image_handler.call(src)
+    end
 
     case src
     when /\Afile:\/\//
