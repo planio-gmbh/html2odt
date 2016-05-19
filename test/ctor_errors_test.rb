@@ -1,10 +1,10 @@
 require 'test_helper'
 
-class RodtCtorErrorsTest < Minitest::Test
+class CtorErrorsTest < Minitest::Test
   def test_invalid_template_non_existing_file
     rescued = false
     begin
-      Rodt::Odt.new(template: "/invalid/file")
+      Html2Odt::Document.new(template: "/invalid/file")
     rescue ArgumentError
       rescued = true
       assert_match(/cannot read template/i, $!.message)
@@ -15,7 +15,7 @@ class RodtCtorErrorsTest < Minitest::Test
   def test_invalid_template_no_zip_file
     rescued = false
     begin
-      Rodt::Odt.new(template: __FILE__)
+      Html2Odt::Document.new(template: __FILE__)
     rescue ArgumentError
       rescued = true
       assert_match(/does not look like a ODT file/i, $!.message)
@@ -34,7 +34,7 @@ class RodtCtorErrorsTest < Minitest::Test
 
     rescued = false
     begin
-      Rodt::Odt.new(template: template)
+      Html2Odt::Document.new(template: template)
     rescue ArgumentError
       rescued = true
       assert_match(/does not contain expected file/i, $!.message)
@@ -63,7 +63,7 @@ class RodtCtorErrorsTest < Minitest::Test
 
     rescued = false
     begin
-      Rodt::Odt.new(template: template)
+      Html2Odt::Document.new(template: template)
     rescue ArgumentError
       rescued = true
       assert_match(/does not contain.*{{content}}/i, $!.message)

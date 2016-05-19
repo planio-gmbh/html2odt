@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rodt (0.1.0)
+    html2odt (0.1.0)
       dimensions (~> 1.3.0)
       nokogiri (~> 1.6.7.2)
       rubyzip (~> 1.2.0)
@@ -24,9 +24,9 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 1.12)
   byebug
+  html2odt!
   minitest (~> 5.0)
   rake (~> 10.0)
-  rodt!
 
 BUNDLED WITH
    1.12.3

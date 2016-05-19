@@ -1,10 +1,10 @@
 require 'test_helper'
 
-class RodtOdtFileTest < Minitest::Test
+class OdtFileTest < Minitest::Test
   def test_odt_file_creation
     target = File.join(Dir.tmpdir, "test.odt")
 
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
     odt.html = <<-HTML
       <h1>Hallo Welt</h1>
     HTML

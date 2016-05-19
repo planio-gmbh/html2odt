@@ -1,5 +1,5 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'rodt'
+require 'html2odt'
 
 require 'byebug'
 

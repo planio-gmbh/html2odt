@@ -1,4 +1,4 @@
-class Rodt::Odt
+class Html2Odt::Document
   CONTENT_REGEX = /<text:p[^>]*>{{content}}<\/text:p>/
   INCH_TO_CM = 2.54
 
@@ -11,7 +11,7 @@ class Rodt::Odt
 
   attr_accessor :image_handler
 
-  def initialize(template: Rodt::ODT_TEMPLATE, html: nil)
+  def initialize(template: Html2Odt::ODT_TEMPLATE, html: nil)
     @html     = html
     @template = template
 
@@ -32,19 +32,19 @@ class Rodt::Odt
 
       html = prepare_html
 
-      xml = xslt_tranform(html, Rodt::XHTML2ODT_XSL)
+      xml = xslt_tranform(html, Html2Odt::XHTML2ODT_XSL)
 
       xml = xml.sub('<?xml version="1.0" encoding="utf-8"?>', '')
       xml = @tpl_content_xml.sub(CONTENT_REGEX, xml)
 
-      xml = xslt_tranform(xml, Rodt::XHTML2ODT_STYLES_XSL)
+      xml = xslt_tranform(xml, Html2Odt::XHTML2ODT_STYLES_XSL)
 
       xml
     end
   end
 
   def styles_xml
-    @styles_xml ||= xslt_tranform(@tpl_styles_xml, Rodt::XHTML2ODT_STYLES_XSL)
+    @styles_xml ||= xslt_tranform(@tpl_styles_xml, Html2Odt::XHTML2ODT_STYLES_XSL)
   end
 
   def manifest_xml
@@ -153,7 +153,7 @@ class Rodt::Odt
 
     @images = []
     doc.css("img").each_with_index do |img, index|
-      image = Rodt::Image.new(index)
+      image = Html2Odt::Image.new(index)
 
       image.source = file_path_for(img["src"])
 
@@ -200,7 +200,7 @@ class Rodt::Odt
       # this optional.
 
       uri = URI.parse(src)
-      file = Tempfile.new("rodt")
+      file = Tempfile.new("html2odt")
       file.binmode
 
       Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |http|

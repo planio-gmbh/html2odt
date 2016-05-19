@@ -1,13 +1,6 @@
 require 'test_helper'
 
-class RodtXslHandlingTest < Minitest::Test
-  def test_that_it_has_a_version_number
-    refute_nil ::Rodt::VERSION
-  end
-
-
-
-
+class XslHandlingTest < Minitest::Test
   def test_nokogiris_xsl_handling_works
     xml = Nokogiri::XML(<<XML)
 <?xml version="1.0" encoding="UTF-8"?>
@@ -43,7 +36,7 @@ OUT
 </html>
 HTML
 
-    xslt = File.open(Rodt::XHTML2ODT_XSL, "rb") do |file|
+    xslt = File.open(Html2Odt::XHTML2ODT_XSL, "rb") do |file|
       Nokogiri::XSLT(file)
     end
 
@@ -55,7 +48,7 @@ HTML
 
 
   def test_odt_transforms_html_to_odt_xml
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
 
     odt.html = <<HTML
 <p>

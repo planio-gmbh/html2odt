@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class RodtImageHandlingTest < Minitest::Test
+class ImageHandlingTest < Minitest::Test
   def target
     @target ||= File.join(Dir.tmpdir, "test.odt")
   end
@@ -10,7 +10,7 @@ class RodtImageHandlingTest < Minitest::Test
   end
 
   def test_template_with_image
-    odt = Rodt::Odt.new(template: "test/fixtures/template_with_image.odt")
+    odt = Html2Odt::Document.new(template: "test/fixtures/template_with_image.odt")
 
     odt.html = <<-HTML
       <h1>Hallo Welt</h1>
@@ -38,7 +38,7 @@ class RodtImageHandlingTest < Minitest::Test
   end
 
   def test_html_with_local_image
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
       <img src="file://#{Dir.pwd}/test/fixtures/nina.png" />
@@ -75,10 +75,10 @@ class RodtImageHandlingTest < Minitest::Test
   end
 
   def test_html_with_remote_image
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
-      <img src="https://robohash.org/rodt.png" />
+      <img src="https://robohash.org/html2odt.png" />
     HTML
 
     odt.write_to target
@@ -115,10 +115,10 @@ class RodtImageHandlingTest < Minitest::Test
     # relative image paths cannot be handled, since we have no URL base this
     # relates to, the image tag should be removed.
 
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
-      <img src="rodt.png" />
+      <img src="html2odt.png" />
     HTML
 
     odt.write_to target
@@ -150,7 +150,7 @@ class RodtImageHandlingTest < Minitest::Test
     #
     # If there's a alt text though, we can use that instead.
     #
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
       <img src="http://example.com/test.png" alt="Yellow Robot" />
@@ -188,10 +188,10 @@ class RodtImageHandlingTest < Minitest::Test
     # relative image paths cannot be handled, since we have no URL base this
     # relates to, the image tag should be removed.
 
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
-      <img src="rodt.png" />
+      <img src="html2odt.png" />
       <img src="nina.png" />
     HTML
 
@@ -237,7 +237,7 @@ class RodtImageHandlingTest < Minitest::Test
   end
 
   def test_image_automatic_size
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
       <img src="file://#{Dir.pwd}/test/fixtures/nina.png" />
@@ -263,7 +263,7 @@ class RodtImageHandlingTest < Minitest::Test
   end
 
   def test_image_explicit_width
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
       <img src="file://#{Dir.pwd}/test/fixtures/nina.png" width=100 />
@@ -291,7 +291,7 @@ class RodtImageHandlingTest < Minitest::Test
   end
 
   def test_image_explicit_height
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
       <img src="file://#{Dir.pwd}/test/fixtures/nina.png" height=200 />
@@ -319,7 +319,7 @@ class RodtImageHandlingTest < Minitest::Test
   end
 
   def test_image_explicit_size
-    odt = Rodt::Odt.new
+    odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
       <img src="file://#{Dir.pwd}/test/fixtures/nina.png" width=100 height=200 />

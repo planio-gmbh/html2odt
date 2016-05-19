@@ -1,12 +1,14 @@
-# Rodt
+# html2odt
 
+This gem provides a Ruby wrapper around the set of XLST stylesheets published as
+[xhtml2odt](https://gitlab.com/abompard/xhtml2odt).
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'rodt'
+gem 'html2odt'
 ```
 
 And then execute:
@@ -15,18 +17,18 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install rodt
+    $ gem install html2odt
 
 ## Usage
 
 ### Basic usage
 
 ```ruby
-# Create an Odt instance
-odt = Rodt::Odt.new
+# Create an Html2Odt::Document instance
+doc = Html2Odt::Document.new
 
 # Set the input HTML
-odt.html <<HTML
+doc.html <<HTML
 
 <h1>Hello, World!</h1>
 
@@ -35,18 +37,18 @@ odt.html <<HTML
 HTML
 
 # Write ODT to disk
-odt.write_to "demo.odt"
+doc.write_to "demo.odt"
 
 # Or get binary content as string
-odt.data
+doc.data
 ```
 
-### Ctor options
+### Configuration options
 
-`rodt` comes with a basic `template.odt`, which is as a boilerplate to create
+`html2odt` comes with a basic `template.odt`, which is as a boilerplate to create
 the desired ODT file. If you like to provide your own styles or additional
 content next to the content added via the API, you may provide your own template
-in the `Rodt::Odt` constructor.
+in the `Html2Odt::Document` constructor.
 
 *Please note:* If the template file cannot be read or if it does not appear to
 be a valid ODT file, an `ArgumentError` will be raised.
@@ -56,7 +58,7 @@ The template needs to contain an otherwise empty paragraph containing the string
 
 ```ruby
 # Provide optional template file
-odt = Rodt::Odt.new(template: "template.odt")
+doc = Html2Odt::Document.new(template: "template.odt")
 ```
 
 
@@ -67,7 +69,7 @@ constructor
 
 ```ruby
 # Provide HTML in constructor
-odt = Rodt::Odt.new(html: <<HTML)
+doc = Html2Odt::Document.new(html: <<HTML)
   <h1>Hello, World!</h1>
   <p>It works.</p>
 HTML
@@ -88,7 +90,7 @@ git commits and tags, and push the `.gem` file to
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at
-https://github.com/schmidt/rodt. This project is intended to be a safe,
+https://github.com/planio-gmbh/html2odt. This project is intended to be a safe,
 welcoming space for collaboration, and contributors are expected to adhere to
 the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 

@@ -1,4 +1,4 @@
-class Rodt::Image
+class Html2Odt::Image
   attr_accessor :source
 
   def initialize(target_base)
