@@ -4,7 +4,6 @@ require "uri"
 
 require "dimensions"
 require "nokogiri"
-require "xml/xslt"
 require "zip"
 
 module Rodt

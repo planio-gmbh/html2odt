@@ -26,7 +26,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "dimensions", "~> 1.3.0"
   spec.add_dependency "nokogiri", "~> 1.6.7.2"
-  spec.add_dependency "ruby-xslt", "~> 0.9.9"
   spec.add_dependency "rubyzip", "~> 1.2.0"
 
   spec.add_development_dependency "bundler", "~> 1.12"

@@ -8,15 +8,13 @@ class RodtXslHandlingTest < Minitest::Test
 
 
 
-  def test_ruby_xslt_works
-    xslt = XML::XSLT.new
-
-    xslt.xml = <<XML
+  def test_nokogiris_xsl_handling_works
+    xml = Nokogiri::XML(<<XML)
 <?xml version="1.0" encoding="UTF-8"?>
 <test>This is a test file</test>
 XML
 
-    xslt.xsl = <<XSL
+    xslt = Nokogiri::XSLT(<<XSL)
 <?xml version="1.0" ?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:template match="/">
@@ -25,7 +23,7 @@ XML
 </xsl:stylesheet>
 XSL
 
-    out = xslt.serve
+    out = xslt.transform(xml).to_s
 
     assert_equal <<OUT, out
 <?xml version=\"1.0\"?>
@@ -36,10 +34,8 @@ OUT
 
 
 
-  def test_ruby_xslt_handles_xhtml2odt_xslts
-    xslt = XML::XSLT.new
-
-    xslt.xml = <<HTML
+  def test_nokogiri_handles_xhtml2odt_xslts
+    xml = Nokogiri::XML(<<HTML)
 <html xmlns="http://www.w3.org/1999/xhtml">
   <p>
     <span>First</span> <span>Second</span>
@@ -47,9 +43,11 @@ OUT
 </html>
 HTML
 
-    xslt.xsl = Rodt::XHTML2ODT_XSL
+    xslt = File.open(Rodt::XHTML2ODT_XSL, "rb") do |file|
+      Nokogiri::XSLT(file)
+    end
 
-    out = xslt.serve
+    out = xslt.transform(xml).to_s
 
     assert out.include?("First Second")
   end

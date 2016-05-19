@@ -244,13 +244,14 @@ class Rodt::Odt
 
 
   def xslt_tranform(xml, xsl)
-    xslt = XML::XSLT.new
+    xslt = File.open(xsl) do |file|
+      Nokogiri::XSLT(file)
+    end
 
-    xslt.xml = xml
-    xslt.xsl = xsl
+    xml = Nokogiri::XML(xml)
 
-    # raises XML::XSLT::ParsingError if XML or XSL are invalid
-    xslt.serve
+    # raises RuntimeError or Nokogiri::XML::SyntaxError if something goes wrong
+    xslt.transform(xml).to_s
   end
 
   def reset
