@@ -156,7 +156,7 @@ class ImageHandlingTest < Minitest::Test
       <img src="http://example.com/test.png" alt="Yellow Robot" />
     HTML
 
-    odt.image_handler = lambda do |src|
+    odt.image_location_mapping = lambda do |src|
       nil
     end
 
@@ -184,7 +184,7 @@ class ImageHandlingTest < Minitest::Test
     end
   end
 
-  def test_html_with_image_handler
+  def test_html_with_image_location_mapping
     # relative image paths cannot be handled, since we have no URL base this
     # relates to, the image tag should be removed.
 
@@ -198,7 +198,7 @@ class ImageHandlingTest < Minitest::Test
     # First image (0.png) will be ignored.
     # Second one (1.png) will be added to ODT.
 
-    odt.image_handler = lambda do |src|
+    odt.image_location_mapping = lambda do |src|
       if src == "nina.png"
         "#{Dir.pwd}/test/fixtures/nina.png"
       else

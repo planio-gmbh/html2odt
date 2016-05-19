@@ -9,7 +9,7 @@ class Html2Odt::Document
   # xhtml2odt uses 96 by default.
   DPI = 114.0
 
-  attr_accessor :image_handler
+  attr_accessor :image_location_mapping
 
   def initialize(template: Html2Odt::ODT_TEMPLATE, html: nil)
     @html     = html
@@ -180,8 +180,8 @@ class Html2Odt::Document
   end
 
   def file_path_for(src)
-    if image_handler
-      return image_handler.call(src)
+    if image_location_mapping
+      return image_location_mapping.call(src)
     end
 
     case src

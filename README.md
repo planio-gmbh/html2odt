@@ -75,6 +75,38 @@ doc = Html2Odt::Document.new(html: <<HTML)
 HTML
 ```
 
+### Image handling
+
+`html2odt` provides basic image inlining, i.e. images referenced in the HTML
+code will be embeded into the ODT file by default. This is true for images
+referenced with a full `file://`, `http://`, or `https://` URL. Absolute URLs
+(i.e. starting `/`) and relative URLs are not supported, since `html2odt` has no
+idea, which server or document they are relating to.
+
+Images referencing an unsupported resource will be replaced with a link
+containing the alt text of the image.
+
+If you are using `html2odt` in a web application context, you will probably want
+to provide some special handling for resources residing on your own server. This
+should be done for security reasons or to save roundtrips.
+
+`html2odt` provides the following API to map image `src` attributes to local
+file locations.
+
+```ruby
+# Provide custom mapping for image locations
+doc = Html2Odt::Document.new
+
+doc.image_location_mapping = lambda do |src|
+  # Attention! Add protection against directory traversal attacks
+  "/var/www/mywebsite/#{src}"
+end
+```
+
+Registering an `image_location_mapping` callback will deactivate the default
+behaviour of including images with `file` and `http` URLs automatically.
+
+
 ## Development
 
 After checking out the repo, run `bundle install` to install dependencies. Then,
