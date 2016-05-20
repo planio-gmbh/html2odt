@@ -29,12 +29,14 @@ doc = Html2Odt::Document.new
 
 # Set the input HTML
 doc.html <<HTML
-
 <h1>Hello, World!</h1>
-
 <p>It works.</p>
-
 HTML
+
+# Set author and title
+doc.author = "Jane Doe"
+doc.title = "Example Document"
+
 
 # Write ODT to disk
 doc.write_to "demo.odt"

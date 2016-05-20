@@ -1,5 +1,6 @@
 require "net/http"
 require "tempfile"
+require "time"
 require "uri"
 
 require "dimensions"

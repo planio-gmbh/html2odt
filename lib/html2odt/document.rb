@@ -11,6 +11,9 @@ class Html2Odt::Document
 
   attr_accessor :image_location_mapping
 
+  # Document meta data
+  attr_accessor :author, :title
+
   def initialize(template: Html2Odt::ODT_TEMPLATE, html: nil)
     @html     = html
     @template = template
@@ -57,7 +60,7 @@ class Html2Odt::Document
         doc = Nokogiri::XML(@tpl_manifest_xml)
 
         @images.each do |image|
-          entry = Nokogiri::XML::Node.new "manifest:file-entry", doc
+          entry = create_node(doc, "manifest:file-entry")
           entry["manifest:full-path"]  = image.target
           entry["manifest:media-type"] = image.mime_type
 
@@ -66,6 +69,40 @@ class Html2Odt::Document
 
         doc.to_xml
       end
+    end
+  end
+
+  def meta_xml
+    @meta_xml ||= begin
+       doc = Nokogiri::XML(@tpl_meta_xml)
+
+       meta = doc.at_xpath("office:document-meta/office:meta")
+
+       meta.xpath("meta:generator").remove
+       meta.add_child create_node(doc, "meta:generator", "html2odt.rb/#{Html2Odt::VERSION}")
+
+       meta.xpath("meta:creation-date").remove
+       meta.add_child create_node(doc, "meta:creation-date", Time.now.utc.iso8601)
+
+       meta.xpath("dc:date").remove
+       meta.add_child create_node(doc, "dc:date", Time.now.utc.iso8601)
+
+       meta.xpath("meta:editing-duration").remove
+       meta.add_child create_node(doc, "meta:editing-duration", "P0D")
+
+       meta.xpath("meta:editing-cycles").remove
+       meta.add_child create_node(doc, "meta:editing-cycles", "1")
+
+       meta.xpath("meta:initial-creator").remove
+       meta.add_child create_node(doc, "meta:initial-creator", author) if author
+
+       meta.xpath("dc:creator").remove
+       meta.add_child create_node(doc, "dc:creator", author) if author
+
+       meta.xpath("dc:title").remove
+       meta.add_child create_node(doc, "dc:title", title) if title
+
+       doc.to_xml
     end
   end
 
@@ -82,6 +119,8 @@ class Html2Odt::Document
               data = case entry.name
               when "content.xml"
                 content_xml
+              when "meta.xml"
+                meta_xml
               when "styles.xml"
                 styles_xml
               when "META-INF/manifest.xml"
@@ -122,6 +161,7 @@ class Html2Odt::Document
     Zip::File.open(@template) do |zip_file|
       @tpl_content_xml  = zip_file.read("content.xml")
       @tpl_manifest_xml = zip_file.read("META-INF/manifest.xml")
+      @tpl_meta_xml     = zip_file.read("meta.xml")
       @tpl_styles_xml   = zip_file.read("styles.xml")
     end
 
@@ -167,7 +207,7 @@ class Html2Odt::Document
         if alt.nil? || alt.empty?
           img.remove
         else
-          a = Nokogiri::XML::Node.new("a", doc)
+          a = create_node(doc, "a")
           a["href"] = img["src"]
           a.content = alt
 
@@ -259,5 +299,11 @@ class Html2Odt::Document
     @manifest_xml = nil
     @data         = nil
     @images       = nil
+  end
+
+  def create_node(doc, tagname, content = nil)
+    entry = Nokogiri::XML::Node.new tagname, doc
+    entry.content = content unless content.nil?
+    entry
   end
 end
