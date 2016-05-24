@@ -19,6 +19,11 @@ class OdtFileTest < Minitest::Test
       assert content_xml.include?("Hallo Welt")
 
       assert zipfile.find_entry("styles.xml")
+
+      mimetype = zipfile.find_entry("mimetype")
+      assert mimetype, "mimetype should exist"
+      assert_equal mimetype, zipfile.entries.first, "mimetype should be first entry"
+      assert_equal Zlib::NO_COMPRESSION, mimetype.compression_method, "mimetype should not be compressed"
     end
 
   ensure

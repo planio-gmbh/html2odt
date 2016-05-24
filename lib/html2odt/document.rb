@@ -129,7 +129,12 @@ class Html2Odt::Document
                 input_stream.sysread
               end
 
-              output_stream.put_next_entry(entry.name)
+              if entry.name == "mimetype"
+                # mimetype may not be compressed
+                output_stream.put_next_entry(entry.name, nil, nil, Zlib::NO_COMPRESSION)
+              else
+                output_stream.put_next_entry(entry.name)
+              end
               output_stream.write data
             end
           end
