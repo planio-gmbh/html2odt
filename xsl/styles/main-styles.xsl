@@ -441,7 +441,6 @@
                                       style:horizontal-pos="right"
                                       style:horizontal-rel="paragraph"
                                       fo:background-color="transparent"
-                                      style:background-transparency="100%"
                                       fo:padding="0.15cm"
                                       fo:border="0.002cm solid #000000"
                                       style:shadow="none">
