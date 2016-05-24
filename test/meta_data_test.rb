@@ -67,6 +67,10 @@ class ImageHandlingTest < Minitest::Test
       assert_empty meta_xml.xpath("office:document-meta/office:meta/meta:initial-creator")
       assert_empty meta_xml.xpath("office:document-meta/office:meta/dc:creator")
       assert_empty meta_xml.xpath("office:document-meta/office:meta/dc:title")
+
+      # No stats, since they are not up to date anyway
+      assert_empty meta_xml.xpath("office:document-meta/office:meta/meta:document-statistic")
+
     end
   end
 

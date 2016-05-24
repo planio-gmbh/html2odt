@@ -102,6 +102,8 @@ class Html2Odt::Document
        meta.xpath("dc:title").remove
        meta.add_child create_node(doc, "dc:title", title) if title
 
+       meta.xpath("meta:document-statistic").remove
+
        doc.to_xml
     end
   end
