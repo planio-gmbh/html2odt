@@ -163,8 +163,7 @@
                          style:border-line-width-bottom="0.002cm 0.035cm 0.002cm"
                          fo:padding="0cm" fo:border-left="none" fo:border-right="none"
                          fo:border-top="none" fo:border-bottom="0.04cm double #808080"
-                         text:number-lines="false" text:line-number="0"
-                         style:join-border="false"/>
+                         text:number-lines="false" text:line-number="0"/>
             <style:text-properties fo:font-size="6pt"/>
         </style:style>
     </xsl:if>
