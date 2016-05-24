@@ -333,8 +333,8 @@
         <style:style style:name="Definition_20_Term"
                      style:display-name="Definition Term" style:family="paragraph"
                      style:parent-style-name="Text_20_body" style:class="html">
-            <style:text-properties fo:font-weight="bold"/>
             <style:paragraph-properties fo:margin-bottom="0cm"/>
+            <style:text-properties fo:font-weight="bold"/>
         </style:style>
     </xsl:if>
 
