@@ -368,7 +368,7 @@
 
     <xsl:if test="count(//office:automatic-styles/style:style[@style:name = 'table-default']) = 0">
         <style:style style:name="table-default" style:family="table">
-            <style:table-properties style:width="100%" table:align="margins"/>
+            <style:table-properties style:width="17cm" table:align="margins"/>
         </style:style>
     </xsl:if>
 
