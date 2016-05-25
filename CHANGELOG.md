@@ -1,3 +1,10 @@
+# v0.3.0 - 2016-05-25
+
+Adding support for `base_uri` configuration to expand links and download images
+without fully qualified URI.
+
+Adding html2odt.rb binary.
+
 # v0.2.1 - 2016-05-25
 
 Adding workarounds for HTML structures not supported by xhtml2odt.
