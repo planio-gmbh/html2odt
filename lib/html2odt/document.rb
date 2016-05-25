@@ -186,6 +186,7 @@ class Html2Odt::Document
   def prepare_html
     html = self.html
     html = fix_images_in_html(html)
+    html = fix_document_structure(html)
     html = create_document(html)
     html
   end
@@ -217,6 +218,26 @@ class Html2Odt::Document
           img.replace(a)
         end
       end
+    end
+
+    doc.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::AS_XML)
+  end
+
+  def fix_document_structure(html)
+    doc = Nokogiri::HTML::DocumentFragment.parse(html)
+
+    # XHTML2ODT cannot handle <code> elements without parent block elements,
+    # i.e. a containing <pre> or <p>. Adding a <p> in that case
+    doc.css("code").select { |code| code.ancestors("p, pre").empty? }.each do |code|
+      p = create_node(doc, "p")
+      code.add_next_sibling(p)
+      p.add_child(code)
+    end
+
+    # XHTML2ODT cannot handle <br> within <pre> tags properly, replacing them
+    # with new lines should have the same side effects.
+    doc.css("pre br").each do |br|
+      br.replace("\n")
     end
 
     doc.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::AS_XML)
