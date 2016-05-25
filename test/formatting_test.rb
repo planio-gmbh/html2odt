@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class OdtFileTest < Minitest::Test
+class FormattingTest < Minitest::Test
   def test_pre_elements
     odt = Html2Odt::Document.new
     odt.html = <<HTML
