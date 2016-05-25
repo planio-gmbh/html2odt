@@ -196,7 +196,7 @@ class Html2Odt::Document
     end
 
   rescue Zip::Error
-    raise ArgumentError, "Template file does not look like a ODT file - #{$!.message}"
+    raise ArgumentError, "Template file does not look like an ODT file - #{$!.message}"
   rescue Errno::ENOENT
     raise ArgumentError, "Template file does not contain expected file - #{$!.message}"
   end

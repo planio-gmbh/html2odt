@@ -18,7 +18,7 @@ class CtorErrorsTest < Minitest::Test
       Html2Odt::Document.new(template: __FILE__)
     rescue ArgumentError
       rescued = true
-      assert_match(/does not look like a ODT file/i, $!.message)
+      assert_match(/does not look like an ODT file/i, $!.message)
     end
     assert rescued, "Expected ArgumentError"
   end
