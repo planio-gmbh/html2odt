@@ -21,7 +21,24 @@ Or install it yourself as:
 
 ## Usage
 
-### Basic usage
+### Command line Usage
+
+
+```
+Usage: html2odt.rb [options] -i input.html -o output.odt
+    -i, --input input.html
+    -o, --output output.odt
+    -t, --template <template.odt>    The file that should be filled with the input's content.
+                                     Defaults to basic template file which is part of this gem.
+    -r, --replace <KEYWORD>          A keyword in the template document to replace with the converted text.
+                                     Defaults to `{{content}}`.
+    -u, --url <URL>                  The remote URL you downloaded the page from.
+                                     This is required to include remote images and to resolve links properly.
+    -h, --help                       Show this message
+```
+
+
+### Ruby API usage
 
 ```ruby
 # Create an Html2Odt::Document instance
@@ -77,20 +94,47 @@ doc = Html2Odt::Document.new(html: <<HTML)
 HTML
 ```
 
+
+
+
+Furthermore, you may specify a `base_uri`, which will most likely be the place,
+the original HTML fragment belongs to. The `base_uri` will be used to convert
+links to fully qualified URLs, so that they still work when placed in the ODT
+document. Furthermore the setting will be used to identify the sources of
+image's found within the HTML fragments (see below for some detail).
+
+```ruby
+# Provide base_uri
+doc = Html2Odt::Document.new
+doc.base_uri = "https://www.example.com"
+```
+
+You may also pass a `URI` instance directly.
+
+```ruby
+# Provide base_uri
+doc = Html2Odt::Document.new
+doc.base_uri = URI::parse("https://www.example.com")
+```
+
+It is expected, that the URI refers to a `http(s)` location.
+
+
 ### Image handling
 
 `html2odt` provides basic image inlining, i.e. images referenced in the HTML
 code will be embeded into the ODT file by default. This is true for images
 referenced with a full `file://`, `http://`, or `https://` URL. Absolute URLs
-(i.e. starting `/`) and relative URLs are not supported, since `html2odt` has no
-idea, which server or document they are relating to.
+(i.e. starting `/`) and relative URLs are only supported if the `base_uri`
+option is set. Otherwise `html2odt` has no idea, which server or document they
+are relating to.
 
 Images referencing an unsupported resource will be replaced with a link
 containing the alt text of the image.
 
 If you are using `html2odt` in a web application context, you will probably want
 to provide some special handling for resources residing on your own server. This
-should be done for security reasons or to save roundtrips.
+should be done for security reasons and to save roundtrips.
 
 `html2odt` provides the following API to map image `src` attributes to local
 file locations.
