@@ -30,6 +30,25 @@ class Html2Odt::Document
     @html
   end
 
+  def base_uri=(uri)
+    if uri.is_a? URI
+      @base_uri = uri
+    else
+      @base_uri = URI::parse(uri)
+    end
+
+    unless @base_uri.is_a? URI::HTTP
+      raise ArgumentError, "Invalid URI - Expecting http(s) scheme."
+    end
+
+  rescue URI::InvalidURIError
+    raise ArgumentError, "Invalid URI - #{$!.message}"
+  end
+
+  def base_uri
+    @base_uri
+  end
+
   def content_xml
     @content_xml ||= begin
 
@@ -187,6 +206,7 @@ class Html2Odt::Document
     html = self.html
     html = fix_images_in_html(html)
     html = fix_document_structure(html)
+    html = fix_links(html) if base_uri
     html = create_document(html)
     html
   end
@@ -243,6 +263,16 @@ class Html2Odt::Document
     doc.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::AS_XML)
   end
 
+  def fix_links(html)
+    doc = Nokogiri::HTML::DocumentFragment.parse(html)
+
+    doc.css("a").each do |a|
+      a["href"] = (base_uri + a["href"]).to_s
+    end
+
+    doc.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::AS_XML)
+  end
+
   def create_document(html)
     %Q{<html xmlns="http://www.w3.org/1999/xhtml">#{html}</html>}
   end
@@ -252,22 +282,27 @@ class Html2Odt::Document
       return image_location_mapping.call(src)
     end
 
-    case src
-    when /\Afile:\/\//
+    if src =~ /\Afile:\/\//
       # local file URL
       #
       # TODO: Verify, that this does not pose a security threat, maybe make
       # this optional. In any case, it's useful for testing.
 
-      src[7..-1]
+      return src[7..-1]
+    end
 
-    when /\Ahttps?:\/\//
+    if src =~ /\Ahttps?:\/\// or !base_uri.nil?
       # remote image URL
       #
       # TODO: Verify, that this does not pose a security threat, maybe make
       # this optional.
 
-      uri = URI.parse(src)
+      if base_uri
+        uri = base_uri + src
+      else
+        uri = URI.parse(src)
+      end
+
       file = Tempfile.new("html2odt")
       file.binmode
 
@@ -279,11 +314,11 @@ class Html2Odt::Document
         file
       end
 
-      file.path
-    else
-      # cannot handle image properly, return nil
-      nil
+      return file.path
     end
+
+    # cannot handle image properly, return nil
+    nil
   end
 
   def update_img_tag(img, image)

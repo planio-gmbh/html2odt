@@ -111,7 +111,46 @@ class ImageHandlingTest < Minitest::Test
     end
   end
 
-  def test_html_with_relative_image_path
+  def test_html_with_remote_image_and_base_uri
+    odt = Html2Odt::Document.new
+
+    odt.html = <<-HTML
+      <img src="html2odt.png" />
+    HTML
+
+    odt.base_uri = "https://robohash.org/"
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      assert zipfile.find_entry("content.xml")
+      assert zipfile.find_entry("styles.xml")
+
+      # zip contains image file
+      assert zipfile.find_entry("Pictures/0.png"), "Image not in zip"
+
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+      images = content_xml.xpath("//draw:image")
+      assert_equal 1, images.size
+
+      image = images.first
+      assert_equal "Pictures/0.png", image["xlink:href"]
+
+      # manifest contains ref to image
+      manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))
+
+      # <manifest:file-entry manifest:full-path="Pictures/0.png"
+      #                      manifest:media-type="image/png"/>
+      entry = manifest_xml.at_xpath("//manifest:file-entry[@manifest:full-path='Pictures/0.png']")
+      assert entry
+      assert_equal "image/png", entry["manifest:media-type"]
+    end
+  end
+
+  def test_html_with_relative_image_path_wo_base_uri
     # relative image paths cannot be handled, since we have no URL base this
     # relates to, the image tag should be removed.
 
