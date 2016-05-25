@@ -3,6 +3,20 @@
 This gem provides a Ruby wrapper around the set of XLST stylesheets published as
 [xhtml2odt](https://github.com/abompard/xhtml2odt).
 
+
+## html2odt vs. xhtml2odt
+
+So, why is this project called `html2odt` while the original library and command
+line tools by Aurélien Bompard are called **`x`**`html2odt`?
+
+This project uses [nokogiri](http://www.nokogiri.org) to parse the HTML and
+apply the XSLT transformations. Nokogiri implements a forgiving HTML parser and
+tries be as forgiving as possible. Furthermore, the basic API expects HTML
+fragments, not full documents. We are not expecting the users of this library to
+pass in a complete, valid XHTML document. A reasonably good piece of HTML should
+be good enough. Therefore we skipped the `X` in the name as well.
+
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -18,6 +32,7 @@ And then execute:
 Or install it yourself as:
 
     $ gem install html2odt
+
 
 ## Usage
 
