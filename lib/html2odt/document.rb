@@ -219,7 +219,7 @@ class Html2Odt::Document
       end
     end
 
-    doc.to_xml
+    doc.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::AS_XML)
   end
 
   def create_document(html)
