@@ -191,10 +191,6 @@ class Html2Odt::Document
   end
 
 
-  def create_document(html)
-    %Q{<html xmlns="http://www.w3.org/1999/xhtml">#{html}</html>}
-  end
-
   def fix_images_in_html(html)
     doc = Nokogiri::HTML::DocumentFragment.parse(html)
 
@@ -224,6 +220,10 @@ class Html2Odt::Document
     end
 
     doc.to_xml
+  end
+
+  def create_document(html)
+    %Q{<html xmlns="http://www.w3.org/1999/xhtml">#{html}</html>}
   end
 
   def file_path_for(src)
