@@ -1,7 +1,7 @@
 # coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
+lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'html2odt/version'
+require "html2odt/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "html2odt"
@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{html2odt generates ODT documents based on HTML fragments using xhtml2odt}
   spec.homepage      = "https://github.com/planio-gmbh/html2odt"
 
-  spec.license       = 'MIT'
+  spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.require_paths = ["lib"]
