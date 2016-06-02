@@ -3,6 +3,7 @@
 This gem provides a Ruby wrapper around the set of XLST stylesheets published as
 [xhtml2odt](https://github.com/abompard/xhtml2odt).
 
+[![Build Status](https://travis-ci.org/planio-gmbh/html2odt.svg?branch=master)](https://travis-ci.org/planio-gmbh/html2odt)
 
 ## html2odt vs. xhtml2odt
 
