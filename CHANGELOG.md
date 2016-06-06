@@ -1,3 +1,7 @@
+# v0.3.1 - 2016-06-06
+
+Improved support for Ruby 2.0.0, improved handling of invalid URIs
+
 # v0.3.0 - 2016-05-25
 
 Adding support for `base_uri` configuration to expand links and download images
