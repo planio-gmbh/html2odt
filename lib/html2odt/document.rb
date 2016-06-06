@@ -267,7 +267,11 @@ class Html2Odt::Document
     doc = Nokogiri::HTML::DocumentFragment.parse(html)
 
     doc.css("a").each do |a|
-      a["href"] = (base_uri + a["href"]).to_s
+      begin
+        a["href"] = (base_uri + a["href"]).to_s
+      rescue URI::InvalidURIError
+        # Ignore invalid uris, they just stay as is
+      end
     end
 
     doc.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::AS_XML)

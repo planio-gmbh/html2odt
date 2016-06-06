@@ -68,7 +68,7 @@ class LinkHandlingTest < Minitest::Test
   def test_invalid_links
     odt = Html2Odt::Document.new
 
-    odt.html = "<p><a href=\"ex:a//mp:le\">Link</a></p>"
+    odt.html = "<p><a href=\"http://proxy.domain.tld:port\">Link</a></p>"
     odt.base_uri = "https://www.example.com/foo/bar"
 
     content_xml = Nokogiri::XML(odt.content_xml)
@@ -78,6 +78,6 @@ class LinkHandlingTest < Minitest::Test
 
     a = as.first
 
-    assert_equal "ex:a//mp:le", a["xlink:href"]
+    assert_equal "http://proxy.domain.tld:port", a["xlink:href"]
   end
 end
