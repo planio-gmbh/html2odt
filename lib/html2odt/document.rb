@@ -314,7 +314,7 @@ class Html2Odt::Document
         file
       end
 
-      return file.path
+      return file
     end
 
     # cannot handle image properly, return nil

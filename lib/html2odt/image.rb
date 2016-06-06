@@ -5,6 +5,17 @@ class Html2Odt::Image
     @target_base = target_base
   end
 
+  # Assign file instead of source, if you were creating tempfiles and need them
+  # to stay around until the ODT is generated.
+  def source=(file_or_path)
+    if file_or_path.respond_to? :path
+      @source = file_or_path.path
+      @file = file_or_path
+    else
+      @source = file_or_path.to_s
+    end
+  end
+
   def valid?
     return false if source.nil? or !File.readable?(source)
 
