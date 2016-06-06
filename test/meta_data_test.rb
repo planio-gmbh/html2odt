@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ImageHandlingTest < Minitest::Test
+class MetaDataTest < Minitest::Test
   def target
     @target ||= File.join(Dir.tmpdir, "test.odt")
   end
