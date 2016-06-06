@@ -74,6 +74,12 @@ class ImageHandlingTest < Minitest::Test
     end
   end
 
+  # Added for Ruby 2.0
+  def assert_includes(range, value)
+    assert range.first <= value, "assert_includes failed"
+    assert range.last >= value,  "assert_includes failed"
+  end
+
   def test_with_author_and_title
     odt = Html2Odt::Document.new
 
