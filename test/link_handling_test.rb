@@ -64,4 +64,20 @@ class LinkHandlingTest < Minitest::Test
 
     assert_equal "https://www.example.org/", a["xlink:href"]
   end
+
+  def test_invalid_links
+    odt = Html2Odt::Document.new
+
+    odt.html = "<p><a href=\"ex:a//mp:le\">Link</a></p>"
+    odt.base_uri = "https://www.example.com/foo/bar"
+
+    content_xml = Nokogiri::XML(odt.content_xml)
+
+    as = content_xml.css("text|a")
+    assert_equal 1, as.size
+
+    a = as.first
+
+    assert_equal "ex:a//mp:le", a["xlink:href"]
+  end
 end
