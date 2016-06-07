@@ -364,18 +364,19 @@ class Html2Odt::Document
   end
 
   def uri_to_file(uri)
-    file = Tempfile.new("html2odt")
-    file.binmode
-
     Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |http|
       resp = http.get(uri.path)
 
+      return nil unless resp.is_a?(Net::HTTPSuccess)
+
+      file = Tempfile.new("html2odt")
+      file.binmode
+
       file.write(resp.body)
       file.flush
+
       file
     end
-
-    file
   rescue
     # Could not fetch remote image
     #
