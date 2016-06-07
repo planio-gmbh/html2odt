@@ -307,18 +307,7 @@ class Html2Odt::Document
         uri = URI.parse(src)
       end
 
-      file = Tempfile.new("html2odt")
-      file.binmode
-
-      Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |http|
-        resp = http.get(uri.path)
-
-        file.write(resp.body)
-        file.flush
-        file
-      end
-
-      return file
+      return uri_to_file(uri)
     end
 
     # cannot handle image properly, return nil
@@ -372,5 +361,29 @@ class Html2Odt::Document
     entry = Nokogiri::XML::Node.new tagname, doc
     entry.content = content unless content.nil?
     entry
+  end
+
+  def uri_to_file(uri)
+    file = Tempfile.new("html2odt")
+    file.binmode
+
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |http|
+      resp = http.get(uri.path)
+
+      file.write(resp.body)
+      file.flush
+      file
+    end
+
+    file
+  rescue
+    # Could not fetch remote image
+    #
+    # I feel bad for capturing all exceptions here, but there are so many
+    # libraries involved when fetching a resource over HTTP, that I am not sure
+    # how to create a proper white list. Some of the errors involved may be
+    #
+    # SocketError, OpenSSL::SSL::SSLError
+    nil
   end
 end

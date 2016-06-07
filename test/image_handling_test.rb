@@ -111,6 +111,39 @@ class ImageHandlingTest < Minitest::Test
     end
   end
 
+  def test_html_with_non_existant_remote_image
+    odt = Html2Odt::Document.new
+
+    odt.html = <<-HTML
+      <img src="https://robohash.rg/html2odt.png" />
+    HTML
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      assert zipfile.find_entry("content.xml")
+      assert zipfile.find_entry("styles.xml")
+
+      # zip contains image file
+      assert_nil zipfile.find_entry("Pictures/0.png"), "Some image in zip"
+
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+      images = content_xml.xpath("//draw:image")
+      assert_equal 0, images.size
+
+      # manifest contains no ref to image
+      manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))
+
+      # <manifest:file-entry manifest:full-path="Pictures/0.png"
+      #                      manifest:media-type="image/png"/>
+      entry = manifest_xml.at_xpath("//manifest:file-entry[@manifest:full-path='Pictures/0.png']")
+      assert_nil entry
+    end
+  end
+
   def test_html_with_remote_image_and_base_uri
     odt = Html2Odt::Document.new
 
