@@ -247,6 +247,8 @@ class Html2Odt::Document
   def fix_document_structure(html)
     doc = Nokogiri::HTML::DocumentFragment.parse(html)
 
+    # Removing undesired elements
+    doc.css("script, object, embed, iframe, style, link, map, area").remove
 
     # XHTML2ODT cannot handle <br> within <pre> tags properly, replacing them
     # with new lines should have the same side effects.
