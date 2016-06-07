@@ -1,3 +1,8 @@
+# v0.3.3 - 2016-06-07
+
+Properly handle HTTP errors on remote image handling. Improved handling of top
+level inline elements.
+
 # v0.3.2 - 2016-06-07
 
 Properly handle errors on remote image handling, bump nokogiri dependency to
