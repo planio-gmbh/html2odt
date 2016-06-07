@@ -1,8 +1,9 @@
 class Html2Odt::Image
-  attr_accessor :source
+  attr_reader :source
 
   def initialize(target_base)
     @target_base = target_base
+    @valid = nil
   end
 
   # Assign file instead of source, if you were creating tempfiles and need them

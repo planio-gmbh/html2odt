@@ -17,6 +17,7 @@ class Html2Odt::Document
   def initialize(template: Html2Odt::ODT_TEMPLATE, html: nil)
     @html     = html
     @template = template
+    @base_uri = nil
 
     read_xmls
   end
