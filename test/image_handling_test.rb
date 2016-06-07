@@ -10,7 +10,7 @@ class ImageHandlingTest < Minitest::Test
   end
 
   def test_template_with_image
-    odt = Html2Odt::Document.new(template: "test/fixtures/template_with_image.odt")
+    odt = Html2Odt::Document.new(template: FIXTURE_PATH + "template_with_image.odt")
 
     odt.html = <<-HTML
       <h1>Hallo Welt</h1>
@@ -41,7 +41,7 @@ class ImageHandlingTest < Minitest::Test
     odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
-      <img src="file://#{Dir.pwd}/test/fixtures/nina.png" />
+      <img src="file://#{FIXTURE_PATH + "nina.png"}" />
     HTML
 
     odt.write_to target
@@ -282,7 +282,7 @@ class ImageHandlingTest < Minitest::Test
 
     odt.image_location_mapping = lambda do |src|
       if src == "nina.png"
-        "#{Dir.pwd}/test/fixtures/nina.png"
+        FIXTURE_PATH + "nina.png"
       else
         nil
       end
@@ -322,7 +322,7 @@ class ImageHandlingTest < Minitest::Test
     odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
-      <img src="file://#{Dir.pwd}/test/fixtures/nina.png" />
+      <img src="file://#{FIXTURE_PATH + "nina.png"}" />
     HTML
 
     odt.write_to target
@@ -348,7 +348,7 @@ class ImageHandlingTest < Minitest::Test
     odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
-      <img src="file://#{Dir.pwd}/test/fixtures/nina.png" width=100 />
+      <img src="file://#{FIXTURE_PATH + "nina.png"}" width=100 />
     HTML
 
     odt.write_to target
@@ -376,7 +376,7 @@ class ImageHandlingTest < Minitest::Test
     odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
-      <img src="file://#{Dir.pwd}/test/fixtures/nina.png" height=200 />
+      <img src="file://#{FIXTURE_PATH + "nina.png"}" height=200 />
     HTML
 
     odt.write_to target
@@ -404,7 +404,7 @@ class ImageHandlingTest < Minitest::Test
     odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
-      <img src="file://#{Dir.pwd}/test/fixtures/nina.png" width=100 height=200 />
+      <img src="file://#{FIXTURE_PATH + "nina.png"}" width=100 height=200 />
     HTML
 
     odt.write_to target
