@@ -1,3 +1,8 @@
+# v0.3.2 - 2016-06-07
+
+Properly handle errors on remote image handling, bump nokogiri dependency to
+address security related bugs
+
 # v0.3.1 - 2016-06-06
 
 Improved support for Ruby 2.0.0, improved handling of invalid URIs
