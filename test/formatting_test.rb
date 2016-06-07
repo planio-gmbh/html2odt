@@ -97,4 +97,47 @@ HTML
     assert_equal "<text:line-break/>",     children.shift.to_xml
     assert_equal "end",                    children.shift.to_xml
   end
+
+  def test_with_insignificant_white_space
+    odt = Html2Odt::Document.new
+    odt.html = "<p>first paragraph</p> \n\t<p>second paragraph</p>"
+
+    content_xml = Nokogiri::XML(odt.content_xml)
+
+    paragraphs = content_xml.css("text|p[text|style-name=Text_20_body]")
+    assert_equal 2, paragraphs.size
+
+
+    assert_equal "<text:p text:style-name=\"Text_20_body\">" +
+                    "first paragraph" +
+                 "</text:p>",
+                 paragraphs.first.to_xml
+    assert_equal "<text:p text:style-name=\"Text_20_body\">" +
+                    "second paragraph" +
+                 "</text:p>",
+                 paragraphs.last.to_xml
+  end
+
+  def test_inline_element_without_containing_block_element
+    odt = Html2Odt::Document.new
+    odt.html = "<p>first</p> <strong>strong</strong> <em>em</em> text <p>last</p>"
+
+    content_xml = Nokogiri::XML(odt.content_xml)
+
+    paragraphs = content_xml.css("text|p[text|style-name=Text_20_body]")
+    assert_equal 3, paragraphs.size
+
+
+    assert_equal "<text:p text:style-name=\"Text_20_body\">first</text:p>",
+                 paragraphs.first.to_xml
+    assert_equal "<text:p text:style-name=\"Text_20_body\">last</text:p>",
+                 paragraphs.last.to_xml
+
+    assert_equal "<text:p text:style-name=\"Text_20_body\">" +
+                   "<text:span text:style-name=\"strong\">strong</text:span> " +
+                   "<text:span text:style-name=\"emphasis\">em</text:span> " +
+                   "text " +
+                 "</text:p>",
+                 paragraphs[1].to_xml
+  end
 end

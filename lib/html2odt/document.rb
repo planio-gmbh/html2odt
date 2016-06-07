@@ -247,13 +247,6 @@ class Html2Odt::Document
   def fix_document_structure(html)
     doc = Nokogiri::HTML::DocumentFragment.parse(html)
 
-    # XHTML2ODT cannot handle <code> elements without parent block elements,
-    # i.e. a containing <pre> or <p>. Adding a <p> in that case
-    doc.css("code").select { |code| code.ancestors("p, pre").empty? }.each do |code|
-      p = create_node(doc, "p")
-      code.add_next_sibling(p)
-      p.add_child(code)
-    end
 
     # XHTML2ODT cannot handle <br> within <pre> tags properly, replacing them
     # with new lines should have the same side effects.
@@ -261,7 +254,44 @@ class Html2Odt::Document
       br.replace("\n")
     end
 
+    # XHTML2ODT cannot handle inline nodes without containing block elements, so
+    # we're wrapping anything, that's a top-level inline element or text node
+    # into a newly created p tag, trying to join all sibling inline elements
+    # into a single paragraph.
+    children = doc.children.to_a
+
+    previous = nil
+    while !children.empty?
+      child = children.shift
+      if inline_node?(child)
+        if previous
+          previous.add_child(child)
+        elsif child.element? or child.text !~ /\A\s*\z/
+          p = create_node(doc, "p")
+          child.add_next_sibling(p)
+          p.add_child(child)
+
+          previous = p
+        end
+      else
+        previous = nil
+      end
+    end
+
+
     doc.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::AS_XML)
+  end
+
+  def inline_node? node
+    return true if node.text?
+
+    # https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elements
+    [
+      "b", "big", "i", "small", "tt", "abbr", "acronym", "cite", "code", "dfn",
+      "em", "kbd", "strong", "samp", "time", "var", "a", "bdo", "br", "img",
+      "map", "object", "q", "script", "span", "sub", "sup", "button", "input",
+      "label", "select", "textarea"
+    ].include?(node.name)
   end
 
   def fix_links(html)
