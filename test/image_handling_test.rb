@@ -77,8 +77,11 @@ class ImageHandlingTest < Minitest::Test
   def test_html_with_remote_image
     odt = Html2Odt::Document.new
 
+    FakeWeb.register_uri(:get, "https://example.org/nina.png",
+                         :body => File.read(FIXTURE_PATH + "nina.png"))
+
     odt.html = <<-HTML
-      <img src="https://robohash.org/html2odt.png" />
+      <img src="https://example.org/nina.png" />
     HTML
 
     odt.write_to target
@@ -114,8 +117,12 @@ class ImageHandlingTest < Minitest::Test
   def test_html_with_non_existant_remote_image
     odt = Html2Odt::Document.new
 
+    FakeWeb.register_uri(:get, "https://example.org/nina.png",
+                         :body => "Not Found",
+                         :status => ["404", "Not Found"])
+
     odt.html = <<-HTML
-      <img src="https://robohash.rg/html2odt.png" />
+      <img src="https://example.org/nina.png" />
     HTML
 
     odt.write_to target
@@ -147,11 +154,14 @@ class ImageHandlingTest < Minitest::Test
   def test_html_with_remote_image_and_base_uri
     odt = Html2Odt::Document.new
 
+    FakeWeb.register_uri(:get, "https://example.org/nina.png",
+                         :body => File.read(FIXTURE_PATH + "nina.png"))
+
     odt.html = <<-HTML
-      <img src="html2odt.png" />
+      <img src="nina.png" />
     HTML
 
-    odt.base_uri = "https://robohash.org/"
+    odt.base_uri = "https://example.org/"
 
     odt.write_to target
 
