@@ -173,7 +173,7 @@ end
 Registering an `image_location_mapping` callback will deactivate the default
 behaviour of including images with `file` and `http` URLs automatically.
 
-*Attention:* Be careful: Without a `image_location_mapping` Proc, `html2odt`
+**Attention:** Be careful! Without a `image_location_mapping` Proc, `html2odt`
 will include any local or remote image into the the resulting ODT. This may
 cause all kinds of vulnerabilities and should only be used when used with well
 known inputs. When registering an `image_location_mapping` callback, this
