@@ -160,13 +160,27 @@ file locations.
 doc = Html2Odt::Document.new
 
 doc.image_location_mapping = lambda do |src|
-  # Attention! Add protection against directory traversal attacks
-  "/var/www/mywebsite/#{src}"
+  root = "/var/www/mywebsite/public"
+  path = File.join(root, src)
+
+  # File.realpath raises Errno::ENOENT, if `path` does not exist in file system.
+  valid = File.realpath(path).starts_with?(root) rescue false
+
+  valid ? path : nil
 end
 ```
 
 Registering an `image_location_mapping` callback will deactivate the default
 behaviour of including images with `file` and `http` URLs automatically.
+
+*Attention:* Be careful: Without a `image_location_mapping` Proc, `html2odt`
+will include any local or remote image into the the resulting ODT. This may
+cause all kinds of vulnerabilities and should only be used when used with well
+known inputs. When registering an `image_location_mapping` callback, this
+default behaviour is deactivated, but please make sure, that your custom code,
+does not introduce [path
+traversal]:https://en.wikipedia.org/wiki/Directory\_traversal\_attack
+vulnerabilities. Following the above example code should be a good start.
 
 
 ## License
