@@ -1,3 +1,7 @@
+# v0.4.0 - 2017-03-30
+
+Bump required nokogiri version
+
 # v0.3.3 - 2016-06-07
 
 Properly handle HTTP errors on remote image handling. Improved handling of top
