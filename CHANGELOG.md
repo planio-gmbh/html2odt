@@ -1,3 +1,7 @@
+# v0.4.1 - 2017-09-19
+
+Add support for nokogiri 1.8 in adition to the currently supported versions
+
 # v0.4.0 - 2017-03-30
 
 Bump required nokogiri version
