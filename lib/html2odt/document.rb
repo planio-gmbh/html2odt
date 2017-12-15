@@ -363,8 +363,8 @@ class Html2Odt::Document
       height = img["height"].to_i
       width = height * image.height / image.width
     else
-      width  = image.width
-      height = image.height
+      width  = image.width.to_i
+      height = image.height.to_i
     end
 
     img["width"]  = "#{(width  / DPI * INCH_TO_CM).round(2)}cm"
