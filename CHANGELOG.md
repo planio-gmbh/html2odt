@@ -1,3 +1,7 @@
+# v0.4.3 - 2017-12-15
+
+Handle files smaller than 6144 bytes. Relaxed version requirements.
+
 # v0.4.2 - 2017-12-15
 
 Try harder to determine image dimensions.
