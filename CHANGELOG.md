@@ -1,3 +1,7 @@
+# v0.4.2 - 2017-12-15
+
+Try harder to determine image dimensions.
+
 # v0.4.1 - 2017-09-19
 
 Add support for nokogiri 1.8 in adition to the currently supported versions
