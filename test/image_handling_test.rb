@@ -133,7 +133,7 @@ class ImageHandlingTest < Minitest::Test
       assert zipfile.find_entry("content.xml")
       assert zipfile.find_entry("styles.xml")
 
-      # zip contains image file
+      # zip contains no image file
       assert_nil zipfile.find_entry("Pictures/0.png"), "Some image in zip"
 
       # content xml contains ref to image
@@ -425,6 +425,39 @@ class ImageHandlingTest < Minitest::Test
 
       # 200 px / 114 dpi = 1.754 inch; 1.754 inch * 2.54 cm/inch = 4.456
       assert_equal "4.46cm", frame["svg:height"]
+    end
+  end
+
+  def test_image_without_size
+    odt = Html2Odt::Document.new
+
+    odt.html = <<-HTML
+      <img src="file://#{FIXTURE_PATH + "dummy.png"}" />
+    HTML
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      assert zipfile.find_entry("content.xml")
+      assert zipfile.find_entry("styles.xml")
+
+      # zip contains no image file
+      assert_nil zipfile.find_entry("Pictures/0.png"), "Some image in zip"
+
+      # content xml contains no ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+      images = content_xml.xpath("//draw:image")
+      assert_equal 0, images.size
+
+      # manifest contains no ref to image
+      manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))
+
+      # <manifest:file-entry manifest:full-path="Pictures/0.png"
+      #                      manifest:media-type="image/png"/>
+      entry = manifest_xml.at_xpath("//manifest:file-entry[@manifest:full-path='Pictures/0.png']")
+      assert_nil entry
     end
   end
 end
