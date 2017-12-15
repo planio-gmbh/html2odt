@@ -13,6 +13,7 @@ module Html2Odt
   ODT_TEMPLATE  = File.join(File.dirname(__FILE__), "..", "odt", "template.odt")
 end
 
+require "html2odt/dimensions_patches"
 require "html2odt/document"
 require "html2odt/image"
 require "html2odt/version"

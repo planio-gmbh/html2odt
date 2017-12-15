@@ -23,6 +23,7 @@ class Html2Odt::Image
     if @valid.nil?
       File.open(source, "rb") do |io|
         Dimensions(io)
+        io.extend Html2Odt::DimensionsPatches
 
         # Interacting with Dimensions::Reader directly to
         #
@@ -34,16 +35,6 @@ class Html2Odt::Image
 
         if reader.type
           @type = reader.type
-
-          # for some files, peek doesn't seem to do the trick and width/height
-          # stay nil. According to
-          # https://github.com/sstephenson/dimensions#reading-dimensions-from-a-stream
-          # the dimensions get initialized 'once enough of the file' has been
-          # read, so we do that.
-          #
-          while reader.width.nil?
-            break unless io.read(8192)
-          end
 
           @width = reader.width
           @height = reader.height
