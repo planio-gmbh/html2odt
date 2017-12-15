@@ -33,14 +33,14 @@ class Html2Odt::Image
         io.send :peek
         reader = io.instance_variable_get :@reader
 
-        if reader.type
+        if reader.type && reader.width && reader.height
           @type = reader.type
 
-          @width = reader.width
+          @width  = reader.width
           @height = reader.height
-          @angle = reader.angle
+          @angle  = reader.angle
 
-          @valid = not(@width.nil? or @height.nil?)
+          @valid = true
         else
           @valid = false
         end
