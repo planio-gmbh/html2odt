@@ -134,7 +134,7 @@ class ImageHandlingTest < Minitest::Test
       assert zipfile.find_entry("styles.xml")
 
       # zip contains no image file
-      assert_nil zipfile.find_entry("Pictures/0.png"), "Some image in zip"
+      assert_equal 0, zipfile.glob("Pictures/*").size, "Some image in zip"
 
       # content xml contains ref to image
       content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
@@ -211,10 +211,10 @@ class ImageHandlingTest < Minitest::Test
       assert zipfile.find_entry("content.xml")
       assert zipfile.find_entry("styles.xml")
 
-      # zip contains image file
-      assert_nil zipfile.find_entry("Pictures/0.png"), "Image in zip, but should not"
+      # zip contains no image file
+      assert_equal 0, zipfile.glob("Pictures/*").size, "Some image in zip"
 
-      # content xml contains ref to image
+      # content xml contains no ref to image
       content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
       images = content_xml.xpath("//draw:image")
       assert_equal 0, images.size
@@ -250,14 +250,15 @@ class ImageHandlingTest < Minitest::Test
       assert zipfile.find_entry("content.xml")
       assert zipfile.find_entry("styles.xml")
 
-      # zip contains image file
-      assert_nil zipfile.find_entry("Pictures/0.png"), "Image in zip, but not expected"
+      # zip contains no image file
+      assert_equal 0, zipfile.glob("Pictures/*").size, "Some image in zip"
 
-      # content xml contains ref to image
+      # content xml contains no ref to image
       content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
       images = content_xml.xpath("//draw:image")
       assert_equal 0, images.size
 
+      # contains link instead
       links = content_xml.xpath("//text:a[text()=\"Yellow Robot\"]")
       assert_equal 1, links.size
 
@@ -428,7 +429,7 @@ class ImageHandlingTest < Minitest::Test
     end
   end
 
-  def test_image_without_size
+  def test_image_with_broken_image
     odt = Html2Odt::Document.new
 
     odt.html = <<-HTML
@@ -444,7 +445,7 @@ class ImageHandlingTest < Minitest::Test
       assert zipfile.find_entry("styles.xml")
 
       # zip contains no image file
-      assert_nil zipfile.find_entry("Pictures/0.png"), "Some image in zip"
+      assert_equal 0, zipfile.glob("Pictures/*").size, "Some image in zip"
 
       # content xml contains no ref to image
       content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
