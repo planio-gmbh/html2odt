@@ -77,8 +77,8 @@ class ImageHandlingTest < Minitest::Test
   def test_html_with_remote_image
     odt = Html2Odt::Document.new
 
-    FakeWeb.register_uri(:get, "https://example.org/nina.png",
-                         :body => File.read(FIXTURE_PATH + "nina.png"))
+    stub_request(:get, "https://example.org/nina.png").
+      to_return(body: File.read(FIXTURE_PATH + "nina.png"), status: 200)
 
     odt.html = <<-HTML
       <img src="https://example.org/nina.png" />
@@ -117,9 +117,8 @@ class ImageHandlingTest < Minitest::Test
   def test_html_with_non_existant_remote_image
     odt = Html2Odt::Document.new
 
-    FakeWeb.register_uri(:get, "https://example.org/nina.png",
-                         :body => "Not Found",
-                         :status => ["404", "Not Found"])
+    stub_request(:get, "https://example.org/nina.png").
+      to_return(body: 'Not Found', status: 404)
 
     odt.html = <<-HTML
       <img src="https://example.org/nina.png" />
@@ -154,8 +153,8 @@ class ImageHandlingTest < Minitest::Test
   def test_html_with_remote_image_and_base_uri
     odt = Html2Odt::Document.new
 
-    FakeWeb.register_uri(:get, "https://example.org/nina.png",
-                         :body => File.read(FIXTURE_PATH + "nina.png"))
+    stub_request(:get, "https://example.org/nina.png").
+      to_return(body: File.read(FIXTURE_PATH + "nina.png"), status: 200)
 
     odt.html = <<-HTML
       <img src="nina.png" />
