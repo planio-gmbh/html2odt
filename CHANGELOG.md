@@ -1,3 +1,7 @@
+# v0.4.4 - 2020-01-06
+
+Fix exception occurring with some document contents
+
 # v0.4.3 - 2017-12-15
 
 Handle files smaller than 6144 bytes. Relaxed version requirements.
