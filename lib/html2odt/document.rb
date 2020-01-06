@@ -58,7 +58,7 @@ class Html2Odt::Document
       xml = xslt_tranform(html, Html2Odt::XHTML2ODT_XSL)
 
       xml = xml.sub('<?xml version="1.0" encoding="utf-8"?>', '')
-      xml = @tpl_content_xml.sub(CONTENT_REGEX, xml)
+      xml = @tpl_content_xml.sub(CONTENT_REGEX) { xml }
 
       xml = xslt_tranform(xml, Html2Odt::XHTML2ODT_STYLES_XSL)
 
