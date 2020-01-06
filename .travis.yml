@@ -1,11 +1,23 @@
 language: ruby
 rvm:
   - 2.1.10
-  - 2.2.8
-  - 2.3.5
+  - 2.2.10
+  - 2.3.7
+  - 2.4.9
+  - 2.5.7
+  - 2.6.5
+  - 2.7.0
 
 before_install:
-  - gem install bundler
+  # Bundler 2.0 requires at least Ruby 2.3. We need to explicitly install an
+  # older version of bundler for older Ruby versions since they can't / won't
+  # check their required versions on their own.
+  - |
+    if [[ "$(rvm current)" =~ ^ruby-2\.[012] ]]; then
+      gem install bundler -v '< 2.0'
+    else
+      gem install bundler
+    fi
 
 cache: bundler
 sudo: false
