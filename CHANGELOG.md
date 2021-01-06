@@ -1,3 +1,7 @@
+# v0.4.5 = 2021-01-06
+
+Force binmode when writing out the ODT
+
 # v0.4.4 - 2020-01-06
 
 Fix exception occurring with some document contents
