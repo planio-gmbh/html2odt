@@ -174,7 +174,7 @@ class Html2Odt::Document
   end
 
   def write_to(path)
-    File.write(path, data)
+    File.write(path, data, mode: 'wb')
   end
 
   protected
