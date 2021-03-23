@@ -399,6 +399,9 @@ class Html2Odt::Document
   def uri_to_file(uri)
     Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |http|
       resp = http.get(uri.path)
+      if resp.is_a?(Net::HTTPRedirection) and redirect_uri = URI.parse(resp['location'])
+        resp = http.get(redirect_uri)
+      end
 
       return nil unless resp.is_a?(Net::HTTPSuccess)
 

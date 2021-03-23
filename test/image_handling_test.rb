@@ -114,6 +114,49 @@ class ImageHandlingTest < Minitest::Test
     end
   end
 
+  def test_html_with_remote_image_behind_redirect
+    odt = Html2Odt::Document.new
+
+    stub_request(:get, "https://example.org/nina.png").
+      to_return(status: 302, headers: { "Location" => 'https://example.org/other.png' })
+
+    stub_request(:get, "https://example.org/other.png").
+      to_return(body: File.read(FIXTURE_PATH + "nina.png"), status: 200)
+
+    odt.html = <<-HTML
+      <img src="https://example.org/nina.png" />
+    HTML
+
+    odt.write_to target
+
+    assert File.exist?(target)
+
+    Zip::File.open(target) do |zipfile|
+      assert zipfile.find_entry("content.xml")
+      assert zipfile.find_entry("styles.xml")
+
+      # zip contains image file
+      assert zipfile.find_entry("Pictures/0.png"), "Image not in zip"
+
+      # content xml contains ref to image
+      content_xml  = Nokogiri::XML(zipfile.read("content.xml"))
+      images = content_xml.xpath("//draw:image")
+      assert_equal 1, images.size
+
+      image = images.first
+      assert_equal "Pictures/0.png", image["xlink:href"]
+
+      # manifest contains ref to image
+      manifest_xml = Nokogiri::XML(zipfile.read("META-INF/manifest.xml"))
+
+      # <manifest:file-entry manifest:full-path="Pictures/0.png"
+      #                      manifest:media-type="image/png"/>
+      entry = manifest_xml.at_xpath("//manifest:file-entry[@manifest:full-path='Pictures/0.png']")
+      assert entry
+      assert_equal "image/png", entry["manifest:media-type"]
+    end
+  end
+
   def test_html_with_non_existant_remote_image
     odt = Html2Odt::Document.new
 
