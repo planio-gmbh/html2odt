@@ -1,4 +1,9 @@
-# v0.4.5 = 2021-01-06
+# v0.4.6 - 2021-03-23
+
+Support resources behind redirects.
+Check for source being a file before trying to read it
+
+# v0.4.5 - 2021-01-06
 
 Force binmode when writing out the ODT
 
