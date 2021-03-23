@@ -18,7 +18,7 @@ class Html2Odt::Image
   end
 
   def valid?
-    return false if source.nil? or !File.readable?(source)
+    return false if source.nil? or !File.readable?(source) or !File.file?(source)
 
     if @valid.nil?
       File.open(source, "rb") do |io|
