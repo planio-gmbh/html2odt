@@ -1,3 +1,9 @@
+# v0.4.7 - 2026-06-12
+
+Strip the Zip64 extra field from the mimetype entry so files generated with
+rubyzip >= 3.2 pass ODF validation and are accepted by strict consumers such as
+older LibreOffice (#5).
+
 # v0.4.6 - 2021-03-23
 
 Support resources behind redirects.
