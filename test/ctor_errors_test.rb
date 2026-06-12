@@ -26,10 +26,9 @@ class CtorErrorsTest < Minitest::Test
   def test_invalid_template_no_odt_file
     template = File.join(Dir.tmpdir, "template.odt")
 
-    Zip::File.open(template, Zip::File::CREATE) do |zipfile|
-      zipfile.get_output_stream("hello.txt") do |f|
-        f.puts "Hello from ZipFile"
-      end
+    Zip::OutputStream.open(template) do |zos|
+      zos.put_next_entry("hello.txt")
+      zos.write "Hello from ZipFile\n"
     end
 
     rescued = false
@@ -47,22 +46,18 @@ class CtorErrorsTest < Minitest::Test
   def test_invalid_template_no_content_paragraph
     template = File.join(Dir.tmpdir, "template.odt")
 
-    Zip::File.open(template, Zip::File::CREATE) do |zipfile|
-      zipfile.get_output_stream("content.xml") do |f|
-        f.puts "bla"
-      end
+    Zip::OutputStream.open(template) do |zos|
+      zos.put_next_entry("content.xml")
+      zos.write "bla\n"
 
-      zipfile.get_output_stream("styles.xml") do |f|
-        f.puts "blub"
-      end
+      zos.put_next_entry("styles.xml")
+      zos.write "blub\n"
 
-      zipfile.get_output_stream("META-INF/manifest.xml") do |f|
-        f.puts "blub"
-      end
+      zos.put_next_entry("META-INF/manifest.xml")
+      zos.write "blub\n"
 
-      zipfile.get_output_stream("meta.xml") do |f|
-        f.puts "blub"
-      end
+      zos.put_next_entry("meta.xml")
+      zos.write "blub\n"
     end
 
     rescued = false
