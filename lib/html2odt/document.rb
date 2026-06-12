@@ -129,48 +129,7 @@ class Html2Odt::Document
   end
 
   def data
-    @data ||= begin
-      buffer = Zip::OutputStream.write_buffer do |output_stream|
-        # Copy contents from template, while replacing content.xml and
-        # styles.xml
-        Zip::File.open(@template) do |file|
-          file.each do |entry|
-            next if entry.directory?
-
-            entry.get_input_stream do |input_stream|
-              data = case entry.name
-              when "content.xml"
-                content_xml
-              when "meta.xml"
-                meta_xml
-              when "styles.xml"
-                styles_xml
-              when "META-INF/manifest.xml"
-                manifest_xml
-              else
-                input_stream.sysread
-              end
-
-              if entry.name == "mimetype"
-                # mimetype may not be compressed
-                output_stream.put_next_entry(entry.name, nil, nil, Zlib::NO_COMPRESSION)
-              else
-                output_stream.put_next_entry(entry.name)
-              end
-              output_stream.write data
-            end
-          end
-        end
-
-        # Adding images found in the HTML sources
-        (@images || []).each do |image|
-          output_stream.put_next_entry(image.target)
-          output_stream.write File.read(image.source)
-        end
-      end
-
-      buffer.string
-    end
+    @data ||= zip_buffer.string
   end
 
   def write_to(path)
@@ -179,6 +138,67 @@ class Html2Odt::Document
 
   protected
 
+  # ODF forbids an "extra field" on the mimetype zip entry. rubyzip >= 3.0
+  # writes a Zip64 extra field into every local header, producing files the ODF
+  # validator and strict consumers (e.g. older LibreOffice) reject. rubyzip
+  # >= 3.2 can suppress it per stream, which is thread-safe (unlike the global
+  # Zip.write_zip64_support). rubyzip 2.x never wrote the extra field, so the
+  # option is neither needed nor available there.
+  def zip_buffer
+    if write_buffer_supports_suppressing_extra_fields?
+      Zip::OutputStream.write_buffer(suppress_extra_fields: true) do |output_stream|
+        add_entries(output_stream)
+      end
+    else
+      Zip::OutputStream.write_buffer do |output_stream|
+        add_entries(output_stream)
+      end
+    end
+  end
+
+  def write_buffer_supports_suppressing_extra_fields?
+    Zip::OutputStream.method(:write_buffer).parameters.any? do |_, name|
+      name == :suppress_extra_fields
+    end
+  end
+
+  def add_entries(output_stream)
+    # Copy contents from template, while replacing content.xml and styles.xml
+    Zip::File.open(@template) do |file|
+      file.each do |entry|
+        next if entry.directory?
+
+        entry.get_input_stream do |input_stream|
+          data = case entry.name
+          when "content.xml"
+            content_xml
+          when "meta.xml"
+            meta_xml
+          when "styles.xml"
+            styles_xml
+          when "META-INF/manifest.xml"
+            manifest_xml
+          else
+            input_stream.sysread
+          end
+
+          if entry.name == "mimetype"
+            # mimetype may not be compressed
+            output_stream.put_next_entry(entry.name, nil, nil, Zlib::NO_COMPRESSION)
+          else
+            output_stream.put_next_entry(entry.name)
+          end
+          output_stream.write data
+        end
+      end
+    end
+
+    # Adding images found in the HTML sources
+    (@images || []).each do |image|
+      output_stream.put_next_entry(image.target)
+      output_stream.write File.read(image.source)
+    end
+  end
 
   def read_xmls
     unless File.readable?(@template)
